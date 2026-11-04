@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+
+/* Each operating mode has one accent colour, so the active mode is recognisable at a glance. */
+[data-mode='natural'] {
+  --mode-accent: #2dd4bf;
+}
+
+[data-mode='artificial'] {
+  --mode-accent: #fbbf24;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
