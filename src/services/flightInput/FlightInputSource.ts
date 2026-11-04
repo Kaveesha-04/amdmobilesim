@@ -5,11 +5,7 @@ export type FlightInputEvent =
   /** Something changed while the scene may be idle, so it needs to start updating. */
   | { type: 'activity' }
 
-/**
- * What the simulator needs from a control device. The keyboard is the first one;
- * a source for the ESP32 transmitter can implement this later and nothing past
- * this interface has to change.
- */
+/** What the simulator needs from a control device, so that every device flies the same physics. */
 export interface FlightInputSource {
   readonly name: string
   start(): void
@@ -20,6 +16,12 @@ export interface FlightInputSource {
   resetThrottle(): void
   /** True while input is being held, so that the scene shouldn't go idle. */
   isActive(): boolean
+  /**
+   * Why this device can't be trusted right now, or null if it can. A fault stops the
+   * motors, and read() gives neutral controls until it clears. A source must emit
+   * 'activity' when this changes.
+   */
+  getFault(): string | null
   /** Returns the function that unsubscribes. */
   subscribe(listener: (event: FlightInputEvent) => void): () => void
 }

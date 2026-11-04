@@ -39,4 +39,6 @@ export interface FlightSnapshot {
   cameraMode: CameraMode
   /** Why a command was refused or what it did, if there is something to say. */
   message: string | null
+  /** Why the selected input device can't be used right now, or null if it can. */
+  inputFault: string | null
 }

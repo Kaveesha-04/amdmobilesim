@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import type { InputController, InputKind } from '../../services/flightInput/InputController'
 import type { FlightStore } from '../../stores/flightStore'
 import type { FlightMode } from '../../types/flight'
 
@@ -9,11 +10,19 @@ const MODE_STYLE: Record<FlightMode, { label: string; dotClass: string }> = {
   LANDING: { label: 'Landing', dotClass: 'bg-sky-400' },
 }
 
-const KEYS = [
+const INPUT_KINDS: { kind: InputKind; label: string }[] = [
+  { kind: 'keyboard', label: 'Keyboard' },
+  { kind: 'transmitter', label: 'Transmitter' },
+]
+
+const FLIGHT_KEYS = [
   ['W / S', 'Pitch forward / back'],
   ['A / D', 'Roll left / right'],
   ['Q / E', 'Yaw left / right'],
   ['↑ / ↓', 'Throttle up / down'],
+]
+
+const COMMAND_KEYS = [
   ['Enter', 'Arm'],
   ['Space', 'Emergency stop / disarm'],
   ['R', 'Reset'],
@@ -61,9 +70,12 @@ function InputBar({ label, value, name }: { label: string; value: number; name: 
   )
 }
 
-export function FlightHud({ store }: { store: FlightStore }) {
+export function FlightHud({ store, inputs }: { store: FlightStore; inputs: InputController }) {
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot)
-  const { mode, controls, position, message, cameraMode, isAtBoundary } = snapshot
+  const inputKind = useSyncExternalStore(inputs.subscribeToKind, inputs.getKind)
+  const { mode, controls, position, message, cameraMode, isAtBoundary, inputFault } = snapshot
+  const keys = inputKind === 'keyboard' ? [...FLIGHT_KEYS, ...COMMAND_KEYS] : COMMAND_KEYS
+  const canChangeInput = store.canChangeInput()
   const { label, dotClass } = MODE_STYLE[mode]
   const isArmed = mode !== 'DISARMED'
 
@@ -85,9 +97,38 @@ export function FlightHud({ store }: { store: FlightStore }) {
       </div>
       <p className="mt-1 text-xs text-slate-400">Virtual drone only. Nothing is sent to hardware.</p>
 
+      <div className="mt-3" role="group" aria-label="Input source">
+        <div className="flex gap-2">
+          {INPUT_KINDS.map(({ kind, label: kindLabel }) => (
+            <button
+              key={kind}
+              type="button"
+              aria-pressed={inputKind === kind}
+              className={`${BUTTON_CLASS} flex-1 disabled:opacity-50 disabled:hover:bg-transparent aria-pressed:border-amber-400 aria-pressed:text-amber-300`}
+              disabled={!canChangeInput}
+              data-input-kind={kind}
+              onClick={() => inputs.select(kind)}
+            >
+              {kindLabel}
+            </button>
+          ))}
+        </div>
+        {!canChangeInput && (
+          <p className="mt-1 text-xs text-slate-400">Disarm and land to change the input.</p>
+        )}
+      </div>
+
       {message && (
-        <p className="mt-2 text-sm text-amber-300" data-reading="message">
+        <p
+          className={`mt-2 text-sm ${message.startsWith('Failsafe') ? 'text-red-300' : 'text-amber-300'}`}
+          data-reading="message"
+        >
           {message}
+        </p>
+      )}
+      {inputFault && !message?.includes(inputFault) && (
+        <p className="mt-2 text-sm text-red-300" data-reading="fault">
+          Input unavailable: {inputFault}.
         </p>
       )}
       {isAtBoundary && (
@@ -146,7 +187,7 @@ export function FlightHud({ store }: { store: FlightStore }) {
       </div>
 
       <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-slate-800 pt-3 text-xs">
-        {KEYS.map(([key, action]) => (
+        {keys.map(([key, action]) => (
           <div key={key} className="contents">
             <dt className="font-mono text-slate-300">{key}</dt>
             <dd className="text-slate-400">{action}</dd>

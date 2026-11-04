@@ -132,6 +132,11 @@ export class FlightStore {
     )
   }
 
+  /** Changing device in flight would hand the drone to whatever the new one happens to be set at. */
+  canChangeInput() {
+    return this.mode === 'DISARMED' && this.drone.isGrounded
+  }
+
   getCameraMode = () => this.cameraMode
 
   /** The drone's heading in degrees, for placing the follow camera. */
@@ -178,9 +183,30 @@ export class FlightStore {
   private arm() {
     if (this.mode !== 'DISARMED') return
     // Read afresh, because an idle scene hasn't been stepping the input.
-    const block = armingBlock(this.source.read(0), this.drone)
+    const fault = this.source.getFault()
+    const block = fault ? `Cannot arm: ${fault}.` : armingBlock(this.source.read(0), this.drone)
     this.message = block
     if (!block) this.mode = 'ARMED'
+  }
+
+  /**
+   * The failsafe: a device that can't be trusted loses control at once. The drone
+   * stays disarmed when the device recovers, until someone arms it again.
+   */
+  private checkForFault() {
+    const fault = this.source.getFault()
+
+    if (fault && this.mode !== 'DISARMED') {
+      this.mode = 'DISARMED'
+      this.source.resetThrottle()
+      this.controls = NO_CONTROLS
+      this.message = `Failsafe: ${fault}. Motors off. Arm again when the signal is back.`
+    }
+
+    if (fault !== this.snapshot.inputFault) {
+      if (!fault) this.controls = this.source.read(0)
+      this.publish()
+    }
   }
 
   /** Also the emergency stop: thrust ends at once, and in the air the drone falls. */
@@ -223,6 +249,7 @@ export class FlightStore {
       isAtBoundary,
       cameraMode: this.cameraMode,
       message: this.message,
+      inputFault: this.source.getFault(),
     }
   }
 
@@ -240,6 +267,7 @@ export class FlightStore {
     if (event.type === 'command') {
       this.command(event.command)
     } else {
+      this.checkForFault()
       this.wake()
     }
   }

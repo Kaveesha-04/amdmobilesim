@@ -9,10 +9,11 @@ export interface TelemetrySource {
 }
 
 /**
- * The one place that decides where telemetry comes from. A receiver for the ESP32
- * exists in `Signal Reciever/server.js`, but what its values mean isn't confirmed
- * yet, so nothing connects to it: a production build has no source and reports
- * itself as disconnected. A provider for the real drone gets returned from here.
+ * The one place that decides where telemetry comes from. The drone's way of sending
+ * its orientation isn't confirmed yet, so a production build has no source and
+ * reports itself as disconnected. A provider for the real drone gets returned from
+ * here. `Signal Reciever/server.js` isn't one: it carries the transmitter's stick
+ * inputs, which belong to Artificial Mode and say nothing about the drone's attitude.
  */
 export function createTelemetrySource(): TelemetrySource {
   if (import.meta.env.DEV) {

@@ -19,6 +19,7 @@ export class KeyboardInputSource implements FlightInputSource {
   private readonly heldCodes = new Set<string>()
   private readonly heldActions = new Set<KeyAction>()
   private throttle = 0
+  private flightKeysEnabled = true
 
   constructor(keyMap: FlightKeyMap) {
     for (const [action, codes] of Object.entries(keyMap)) {
@@ -65,6 +66,18 @@ export class KeyboardInputSource implements FlightInputSource {
     return this.heldActions.size > 0
   }
 
+  /** The keyboard itself can't fail. */
+  getFault() {
+    return null
+  }
+
+  /** With these off, only the command keys still do anything, and the rest behave as normal. */
+  setFlightKeysEnabled(isEnabled: boolean) {
+    this.flightKeysEnabled = isEnabled
+    this.releaseAllKeys()
+    this.throttle = 0
+  }
+
   subscribe(listener: (event: FlightInputEvent) => void) {
     this.listeners.add(listener)
     return () => {
@@ -83,11 +96,13 @@ export class KeyboardInputSource implements FlightInputSource {
     const action = this.actionForCode.get(event.code)
     if (!action) return
 
+    const command = COMMAND_FOR_ACTION[action]
+    if (!command && !this.flightKeysEnabled) return
+
     // Stops the arrows and Space scrolling, and Space or Enter pressing a focused button.
     event.preventDefault()
     if (event.repeat) return
 
-    const command = COMMAND_FOR_ACTION[action]
     if (command) {
       this.emit({ type: 'command', command })
       return
