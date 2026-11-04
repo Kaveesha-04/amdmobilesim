@@ -1,5 +1,11 @@
-import { useSyncExternalStore } from 'react'
+import { useState, useSyncExternalStore, type FormEvent } from 'react'
 import type { TransmitterInputSource } from '../../services/flightInput/TransmitterInputSource'
+import {
+  clearSavedReceiverUrl,
+  parseReceiverUrl,
+  saveReceiverUrl,
+} from '../../services/transmitter/receiverUrl'
+import type { FlightStore } from '../../stores/flightStore'
 import type { ServerStatus, TransmitterChannel, TransmitterHealth } from '../../types/transmitter'
 
 const HEALTH_DISPLAY: Record<TransmitterHealth, { label: string; dotClass: string }> = {
@@ -41,14 +47,99 @@ function Row({ label, value, name }: { label: string; value: string; name: strin
   )
 }
 
+const FORM_BUTTON_CLASS =
+  'rounded-md border border-slate-700 px-2.5 py-1.5 text-xs font-medium hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent'
+
+interface ReceiverAddressFormProps {
+  source: TransmitterInputSource
+  store: FlightStore
+  /** What "Use default" goes back to. */
+  configuredUrl: string
+}
+
+/** Only for the web app's own connection. The ESP32 has its own address for the receiver, in its firmware. */
+function ReceiverAddressForm({ source, store, configuredUrl }: ReceiverAddressFormProps) {
+  const { receiverUrl } = useSyncExternalStore(source.subscribeToStatus, source.getStatus)
+  // Subscribing keeps the lock up to date as the drone arms, flies and lands.
+  useSyncExternalStore(store.subscribe, store.getSnapshot)
+  const isLocked = !store.canChangeInput()
+
+  const [draft, setDraft] = useState(receiverUrl)
+  const [error, setError] = useState<string | null>(null)
+
+  const apply = (event: FormEvent) => {
+    event.preventDefault()
+    const result = parseReceiverUrl(draft)
+    if (!result.valid) {
+      setError(result.reason)
+      return
+    }
+    setError(null)
+    setDraft(result.url)
+    saveReceiverUrl(result.url)
+    source.setReceiverUrl(result.url)
+  }
+
+  const resetToDefault = () => {
+    setError(null)
+    setDraft(configuredUrl)
+    clearSavedReceiverUrl()
+    source.setReceiverUrl(configuredUrl)
+  }
+
+  return (
+    <form className="mt-3 border-t border-slate-800 pt-3 text-xs" onSubmit={apply}>
+      <label className="block text-slate-400">
+        Receiver address
+        <input
+          type="text"
+          inputMode="url"
+          autoComplete="off"
+          spellCheck={false}
+          className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-slate-100 disabled:opacity-50"
+          value={draft}
+          disabled={isLocked}
+          data-tx="address-input"
+          onChange={(event) => setDraft(event.target.value)}
+        />
+      </label>
+      <div className="mt-2 flex gap-2">
+        <button type="submit" className={FORM_BUTTON_CLASS} disabled={isLocked}>
+          Apply
+        </button>
+        <button type="button" className={FORM_BUTTON_CLASS} disabled={isLocked} onClick={resetToDefault}>
+          Use default
+        </button>
+      </div>
+      {error && (
+        <p className="mt-2 text-red-300" data-tx="address-error">
+          {error}.
+        </p>
+      )}
+      <p className="mt-2 text-slate-400" data-tx="address">
+        In use: {receiverUrl}
+      </p>
+      {isLocked && <p className="mt-1 text-slate-400">Disarm and land to change the address.</p>}
+    </form>
+  )
+}
+
 interface TransmitterPanelProps {
   source: TransmitterInputSource
+  store: FlightStore
+  configuredUrl: string
   /** Why calibration can't be used, or null if it's set. */
   calibrationError: string | null
   staleAfterMs: number
 }
 
-export function TransmitterPanel({ source, calibrationError, staleAfterMs }: TransmitterPanelProps) {
+export function TransmitterPanel({
+  source,
+  store,
+  configuredUrl,
+  calibrationError,
+  staleAfterMs,
+}: TransmitterPanelProps) {
   const { state, health, controls } = useSyncExternalStore(source.subscribeToStatus, source.getStatus)
   const { serverStatus, raw, problem, dataAgeMs } = state
   const { label, dotClass } = HEALTH_DISPLAY[health]
@@ -116,6 +207,8 @@ export function TransmitterPanel({ source, calibrationError, staleAfterMs }: Tra
           ))}
         </tbody>
       </table>
+
+      <ReceiverAddressForm source={source} store={store} configuredUrl={configuredUrl} />
     </section>
   )
 }

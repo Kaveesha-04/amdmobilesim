@@ -11,6 +11,7 @@ import { InputController } from '../../services/flightInput/InputController'
 import { KeyboardInputSource } from '../../services/flightInput/KeyboardInputSource'
 import { TransmitterInputSource } from '../../services/flightInput/TransmitterInputSource'
 import { parseCalibration } from '../../services/transmitter/calibration'
+import { loadSavedReceiverUrl } from '../../services/transmitter/receiverUrl'
 import { TransmitterService } from '../../services/transmitter/transmitterService'
 import { FlightStore } from '../../stores/flightStore'
 import { FlightHud } from './FlightHud'
@@ -26,7 +27,10 @@ export default function ArtificialModeView() {
       new InputController(
         new KeyboardInputSource(FLIGHT_KEY_MAP),
         new TransmitterInputSource(
-          new TransmitterService(TRANSMITTER_CONFIG),
+          new TransmitterService({
+            ...TRANSMITTER_CONFIG,
+            receiverUrl: loadSavedReceiverUrl() ?? TRANSMITTER_CONFIG.receiverUrl,
+          }),
           calibration,
           calibrationError,
         ),
@@ -65,6 +69,8 @@ export default function ArtificialModeView() {
           {inputKind === 'transmitter' && (
             <TransmitterPanel
               source={inputs.transmitterSource}
+              store={store}
+              configuredUrl={TRANSMITTER_CONFIG.receiverUrl}
               calibrationError={calibrationError}
               staleAfterMs={TRANSMITTER_CONFIG.staleAfterMs}
             />

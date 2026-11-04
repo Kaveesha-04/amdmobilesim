@@ -18,6 +18,7 @@ export interface TransmitterStatus {
   controls: FlightControls | null
   /** Why the transmitter can't be flown with right now, or null if it can. */
   fault: string | null
+  receiverUrl: string
 }
 
 const sameControls = (a: FlightControls | null, b: FlightControls | null) =>
@@ -81,6 +82,11 @@ export class TransmitterInputSource implements FlightInputSource {
     return this.status.fault
   }
 
+  setReceiverUrl(receiverUrl: string) {
+    this.service.setReceiverUrl(receiverUrl)
+    this.update()
+  }
+
   getStatus = () => this.status
 
   subscribeToStatus = (listener: () => void) => {
@@ -99,6 +105,7 @@ export class TransmitterInputSource implements FlightInputSource {
 
   private createStatus(): TransmitterStatus {
     const state = this.service.getState()
+    const receiverUrl = this.service.getReceiverUrl()
 
     if (state.health !== 'connected') {
       const fallback: Record<TransmitterHealth, string> = {
@@ -113,17 +120,18 @@ export class TransmitterInputSource implements FlightInputSource {
         health: state.health,
         controls: null,
         fault: state.problem ?? fallback[state.health],
+        receiverUrl,
       }
     }
 
     if (!this.calibration || !state.raw) {
-      return { state, health: state.health, controls: null, fault: this.calibrationError }
+      return { state, health: state.health, controls: null, fault: this.calibrationError, receiverUrl }
     }
 
     const result = normalizeControls(state.raw, this.calibration)
     return result.valid
-      ? { state, health: 'connected', controls: result.controls, fault: null }
-      : { state, health: 'invalid', controls: null, fault: result.reason }
+      ? { state, health: 'connected', controls: result.controls, fault: null, receiverUrl }
+      : { state, health: 'invalid', controls: null, fault: result.reason, receiverUrl }
   }
 
   private update = () => {

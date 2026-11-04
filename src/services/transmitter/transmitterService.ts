@@ -75,7 +75,7 @@ export class TransmitterService {
   private lastChangeAt: number | null = null
 
   constructor(options: TransmitterServiceOptions) {
-    this.options = options
+    this.options = { ...options }
   }
 
   start() {
@@ -93,6 +93,17 @@ export class TransmitterService {
     this.abort = null
     this.forgetData()
     this.setState(INITIAL_STATE)
+  }
+
+  getReceiverUrl = () => this.options.receiverUrl
+
+  /** Starts again on the new address, so that nothing from the old one can pass for its data. */
+  setReceiverUrl(receiverUrl: string) {
+    this.options.receiverUrl = receiverUrl
+    if (this.run) {
+      this.stop()
+      this.start()
+    }
   }
 
   getState = () => this.state

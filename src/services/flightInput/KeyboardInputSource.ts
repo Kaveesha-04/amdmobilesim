@@ -11,6 +11,14 @@ const COMMAND_FOR_ACTION: Partial<Record<KeyAction, FlightCommand>> = {
   toggleCamera: 'toggle-camera',
 }
 
+/** Typing in a form must not fly the drone: "r" in a text box would otherwise reset it. */
+function isTypingTarget(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
+  )
+}
+
 export class KeyboardInputSource implements FlightInputSource {
   readonly name = 'Keyboard'
 
@@ -92,6 +100,7 @@ export class KeyboardInputSource implements FlightInputSource {
   private handleKeyDown = (event: KeyboardEvent) => {
     // Leave browser shortcuts such as Ctrl+R and Ctrl+W alone.
     if (event.ctrlKey || event.metaKey || event.altKey) return
+    if (isTypingTarget(event.target)) return
 
     const action = this.actionForCode.get(event.code)
     if (!action) return
@@ -118,7 +127,7 @@ export class KeyboardInputSource implements FlightInputSource {
     if (!action) return
 
     // Browsers press a focused button on the release of Space, not the press.
-    event.preventDefault()
+    if (!isTypingTarget(event.target)) event.preventDefault()
 
     if (this.heldCodes.delete(event.code)) {
       this.heldActions.clear()
