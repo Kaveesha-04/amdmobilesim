@@ -1,6 +1,7 @@
 import { Environment, Lightformer } from '@react-three/drei'
-import { useState } from 'react'
-import { Object3D, type Vector3Tuple } from 'three'
+import { useFrame } from '@react-three/fiber'
+import { useRef, useState } from 'react'
+import { Object3D, type DirectionalLight, type Vector3, type Vector3Tuple } from 'three'
 import { SUN_OFFSET } from '../../config/world'
 
 /** Half the width of the shadow map's coverage. Tight, so that the drone's shadow stays sharp. */
@@ -9,17 +10,27 @@ const SHADOW_RANGE = 3
 interface LightingProps {
   /** The sun's shadows are centred here, so pass the drone's position. */
   focus: Vector3Tuple
+  /** Overrides `focus` every frame, so that the shadows stay on a drone that moves. */
+  movingFocus?: Vector3
 }
 
-export function Lighting({ focus }: LightingProps) {
+export function Lighting({ focus, movingFocus }: LightingProps) {
   const [sunTarget] = useState(() => new Object3D())
+  const sun = useRef<DirectionalLight>(null)
   const sunPosition = focus.map((value, axis) => value + SUN_OFFSET[axis]) as Vector3Tuple
+
+  useFrame(() => {
+    if (!movingFocus || !sun.current) return
+    sunTarget.position.copy(movingFocus)
+    sun.current.position.set(...SUN_OFFSET).add(movingFocus)
+  })
 
   return (
     <>
       <ambientLight intensity={0.7} />
       <primitive object={sunTarget} position={focus} />
       <directionalLight
+        ref={sun}
         castShadow
         target={sunTarget}
         intensity={3}

@@ -20,15 +20,27 @@ import type { Attitude } from '../types/telemetry'
  */
 const scratchEuler = new Euler()
 
-export function attitudeToQuaternion(attitude: Attitude, target: Quaternion) {
-  const { signs } = TELEMETRY_CONFIG
+export function bodyAttitudeToQuaternion(attitude: Attitude, target: Quaternion) {
   scratchEuler.set(
-    MathUtils.degToRad(attitude.pitch * signs.pitch),
-    MathUtils.degToRad(-attitude.yaw * signs.yaw),
-    MathUtils.degToRad(-attitude.roll * signs.roll),
+    MathUtils.degToRad(attitude.pitch),
+    MathUtils.degToRad(-attitude.yaw),
+    MathUtils.degToRad(-attitude.roll),
     'YXZ',
   )
   return target.setFromEuler(scratchEuler)
+}
+
+/** Takes telemetry, so it also corrects for the direction of the real sensor's axes. */
+export function attitudeToQuaternion(attitude: Attitude, target: Quaternion) {
+  const { signs } = TELEMETRY_CONFIG
+  return bodyAttitudeToQuaternion(
+    {
+      roll: attitude.roll * signs.roll,
+      pitch: attitude.pitch * signs.pitch,
+      yaw: attitude.yaw * signs.yaw,
+    },
+    target,
+  )
 }
 
 /** Wraps an angle into the range 0 up to (but not including) 360. */

@@ -5,6 +5,6 @@ export const artificialModeMetadata: ModeMetadata = {
   title: 'Artificial Mode',
   description:
     'Flies the virtual drone in a 3D environment. Never sends commands to the actual drone motors.',
-  inputSource: 'ESP32 transmitter',
-  statusMessage: 'Transmitter not connected',
+  inputSource: 'Keyboard, with the ESP32 transmitter to follow',
+  statusMessage: 'Keyboard control',
 }
