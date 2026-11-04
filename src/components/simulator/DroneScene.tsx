@@ -20,6 +20,8 @@ interface DroneSceneProps {
   flightArea?: FlightArea
   /** What to show as the drone. Defaults to the MoonLady Beta 1 model at dronePosition. */
   children?: ReactNode
+  /** Interface shown over the scene. Kept outside the canvas, so that its updates don't re-render the scene. */
+  overlay?: ReactNode
 }
 
 export function DroneScene({
@@ -28,6 +30,7 @@ export function DroneScene({
   camera,
   flightArea,
   children = <MoonLadyDrone position={dronePosition} />,
+  overlay,
 }: DroneSceneProps) {
   const [canRender] = useState(isWebGLAvailable)
 
@@ -55,6 +58,7 @@ export function DroneScene({
           <Suspense fallback={null}>{children}</Suspense>
         </Canvas>
         <ModelLoadingIndicator />
+        {overlay}
       </div>
     </ErrorBoundary>
   )

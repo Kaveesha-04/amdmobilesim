@@ -6,5 +6,5 @@ export const naturalModeMetadata: ModeMetadata = {
   description:
     "Mirrors the actual drone's roll, pitch and yaw on a 3D model that stays in place.",
   inputSource: 'Drone telemetry',
-  statusMessage: 'Telemetry not connected',
+  statusMessage: 'Telemetry details below',
 }
