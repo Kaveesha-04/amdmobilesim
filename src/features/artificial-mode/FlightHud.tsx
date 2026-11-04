@@ -5,7 +5,7 @@ import type { FlightMode } from '../../types/flight'
 
 const MODE_STYLE: Record<FlightMode, { label: string; dotClass: string }> = {
   DISARMED: { label: 'Disarmed', dotClass: 'bg-slate-500' },
-  ARMED: { label: 'Armed', dotClass: 'bg-amber-400' },
+  ARMED: { label: 'Armed', dotClass: 'bg-warn' },
   FLYING: { label: 'Flying', dotClass: 'bg-emerald-400' },
   LANDING: { label: 'Landing', dotClass: 'bg-sky-400' },
 }
@@ -15,22 +15,7 @@ const INPUT_KINDS: { kind: InputKind; label: string }[] = [
   { kind: 'transmitter', label: 'Transmitter' },
 ]
 
-const FLIGHT_KEYS = [
-  ['W / S', 'Pitch forward / back'],
-  ['A / D', 'Roll left / right'],
-  ['Q / E', 'Yaw left / right'],
-  ['↑ / ↓', 'Throttle up / down'],
-]
-
-const COMMAND_KEYS = [
-  ['Enter', 'Arm'],
-  ['Space', 'Emergency stop / disarm'],
-  ['R', 'Reset'],
-  ['C', 'Switch camera'],
-]
-
-const BUTTON_CLASS =
-  'rounded-md border border-slate-700 px-2.5 py-1.5 text-xs font-medium hover:bg-slate-800'
+const BUTTON_CLASS = 'glass-button'
 
 const percent = (value: number) => `${Math.round(value * 100)}%`
 const metres = (value: number) => `${value.toFixed(2)} m`
@@ -60,9 +45,9 @@ function InputBar({ label, value, name }: { label: string; value: number; name: 
           {percent(value)}
         </span>
       </div>
-      <div className="relative mt-1 h-1.5 rounded-full bg-slate-800">
+      <div className="relative mt-1 h-1.5 rounded-full bg-white/10">
         <div
-          className="absolute h-full rounded-full bg-amber-400"
+          className="absolute h-full rounded-full bg-accent"
           style={{ left: `${left}%`, width: `${width}%` }}
         />
       </div>
@@ -74,7 +59,6 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot)
   const inputKind = useSyncExternalStore(inputs.subscribeToKind, inputs.getKind)
   const { mode, controls, position, message, cameraMode, isAtBoundary, inputFault } = snapshot
-  const keys = inputKind === 'keyboard' ? [...FLIGHT_KEYS, ...COMMAND_KEYS] : COMMAND_KEYS
   const canChangeInput = store.canChangeInput()
   const { label, dotClass } = MODE_STYLE[mode]
   const isArmed = mode !== 'DISARMED'
@@ -82,14 +66,14 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
   return (
     <section
       aria-label="Flight data"
-      className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+      className="glass-section"
       data-flight-mode={mode}
     >
       <div className="flex items-center gap-2.5" role="status">
         <span aria-hidden="true" className={`size-2.5 rounded-full ${dotClass}`} />
         <h2 className="text-sm font-semibold">{label}</h2>
         <span
-          className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${isArmed ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-300'}`}
+          className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${isArmed ? 'bg-warn text-slate-950' : 'bg-white/10 text-slate-300'}`}
           data-reading="armed"
         >
           Motors {isArmed ? 'armed' : 'off'}
@@ -104,7 +88,7 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
               key={kind}
               type="button"
               aria-pressed={inputKind === kind}
-              className={`${BUTTON_CLASS} flex-1 disabled:opacity-50 disabled:hover:bg-transparent aria-pressed:border-amber-400 aria-pressed:text-amber-300`}
+              className={`${BUTTON_CLASS} flex-1 aria-pressed:border-accent aria-pressed:text-accent`}
               disabled={!canChangeInput}
               data-input-kind={kind}
               onClick={() => inputs.select(kind)}
@@ -120,7 +104,7 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
 
       {message && (
         <p
-          className={`mt-2 text-sm ${message.startsWith('Failsafe') ? 'text-red-300' : 'text-amber-300'}`}
+          className={`mt-2 text-sm ${message.startsWith('Failsafe') ? 'text-red-300' : 'text-warn'}`}
           data-reading="message"
         >
           {message}
@@ -132,7 +116,7 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
         </p>
       )}
       {isAtBoundary && (
-        <p className="mt-2 text-sm text-amber-300" data-reading="boundary">
+        <p className="mt-2 text-sm text-warn" data-reading="boundary">
           At the edge of the flight area.
         </p>
       )}
@@ -145,9 +129,9 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
               {percent(controls.throttle)}
             </span>
           </div>
-          <div className="relative mt-1 h-1.5 rounded-full bg-slate-800">
+          <div className="relative mt-1 h-1.5 rounded-full bg-white/10">
             <div
-              className="h-full rounded-full bg-amber-400"
+              className="h-full rounded-full bg-accent"
               style={{ width: percent(controls.throttle) }}
             />
             {/* The drone hovers at half throttle. */}
@@ -159,7 +143,7 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
         <InputBar label="Yaw" value={controls.yaw} name="yaw" />
       </div>
 
-      <dl className="mt-4 space-y-1 border-t border-slate-800 pt-3 text-xs">
+      <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-xs">
         <Reading label="Altitude" value={metres(snapshot.altitude)} name="altitude" />
         <Reading label="Horizontal speed" value={speed(snapshot.horizontalSpeed)} name="horizontal-speed" />
         <Reading label="Vertical speed" value={speed(snapshot.verticalSpeed)} name="vertical-speed" />
@@ -185,15 +169,6 @@ export function FlightHud({ store, inputs }: { store: FlightStore; inputs: Input
           {cameraMode === 'follow' ? 'Use free camera' : 'Use follow camera'}
         </button>
       </div>
-
-      <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-slate-800 pt-3 text-xs">
-        {keys.map(([key, action]) => (
-          <div key={key} className="contents">
-            <dt className="font-mono text-slate-300">{key}</dt>
-            <dd className="text-slate-400">{action}</dd>
-          </div>
-        ))}
-      </dl>
     </section>
   )
 }

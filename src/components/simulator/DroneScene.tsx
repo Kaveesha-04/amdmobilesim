@@ -9,6 +9,7 @@ import { Notice } from '../common/Notice'
 import { OutdoorEnvironment } from '../environment/OutdoorEnvironment'
 import { ModelLoadingIndicator } from './ModelLoadingIndicator'
 import { MoonLadyDrone } from './MoonLadyDrone'
+import { RenderQuality } from './RenderQuality'
 import { SceneCamera } from './SceneCamera'
 
 interface DroneSceneProps {
@@ -53,9 +54,10 @@ export function DroneScene({
         </Notice>
       }
     >
-      <div className={`relative overflow-hidden rounded-lg border border-slate-800 ${className}`}>
+      <div className={`relative overflow-hidden ${className}`}>
         {/* Renders only when something changes, because the glass pass is costly to redraw. */}
         <Canvas frameloop="demand" shadows="percentage">
+          <RenderQuality />
           <SceneCamera preset={camera} dronePosition={dronePosition} />
           <OutdoorEnvironment focus={dronePosition} movingFocus={movingFocus} flightArea={flightArea} />
           <Suspense fallback={null}>{children}</Suspense>

@@ -12,7 +12,7 @@ export function TelemetrySceneBadge({ store }: { store: TelemetryStore }) {
 
   return (
     <div
-      className="pointer-events-none absolute top-3 left-3 flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/90 px-3 py-1.5 text-xs text-slate-200"
+      className="pointer-events-none glass absolute top-20 left-4 flex items-center gap-2 rounded-full px-3 py-1.5 text-xs text-slate-200"
       data-scene-badge
     >
       <span aria-hidden="true" className={`size-2 rounded-full ${dotClass}`} />

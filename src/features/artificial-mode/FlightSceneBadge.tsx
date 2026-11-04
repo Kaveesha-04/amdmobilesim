@@ -10,11 +10,11 @@ export function FlightSceneBadge({ store }: { store: FlightStore }) {
 
   return (
     <div
-      className="pointer-events-none absolute top-3 left-3 flex max-w-[90%] items-center gap-2 rounded-lg border border-red-500/60 bg-slate-950/90 px-3 py-1.5 text-xs text-red-200"
+      className="pointer-events-none glass absolute top-20 left-4 flex max-w-[60%] items-center gap-2 rounded-xl !border-warn/70 px-3 py-1.5 text-sm text-red-100"
       data-flight-warning
       role="alert"
     >
-      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-red-500" />
+      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-warn" />
       {warning}
     </div>
   )

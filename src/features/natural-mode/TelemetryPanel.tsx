@@ -33,14 +33,14 @@ export function TelemetryPanel({ store, sourceName, isSimulated }: TelemetryPane
   return (
     <section
       aria-label="Telemetry"
-      className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+      className="glass-section"
       data-health={health}
     >
       <div className="flex items-center gap-2.5" role="status">
         <span aria-hidden="true" className={`size-2.5 rounded-full ${dotClass}`} />
         <h2 className="text-sm font-semibold">{label}</h2>
         {isSimulated && (
-          <span className="ml-auto rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-slate-950">
+          <span className="ml-auto rounded-full bg-warn px-2 py-0.5 text-xs font-semibold text-slate-950">
             Simulated
           </span>
         )}
@@ -65,7 +65,7 @@ export function TelemetryPanel({ store, sourceName, isSimulated }: TelemetryPane
       </dl>
       {sample && !isLive && <p className="mt-2 text-xs text-slate-400">Last valid values, not live.</p>}
 
-      <dl className="mt-4 space-y-1 border-t border-slate-800 pt-3 text-xs">
+      <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-xs">
         <div className="flex justify-between gap-4">
           <dt className="text-slate-400">Last update</dt>
           <dd className="tabular-nums" data-last-update>

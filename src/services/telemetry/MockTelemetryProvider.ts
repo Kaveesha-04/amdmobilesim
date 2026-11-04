@@ -40,6 +40,11 @@ export class MockTelemetryProvider implements TelemetryProvider {
     this.emit({ type: 'status', status: 'disconnected' })
   }
 
+  /** The controls can close and reopen with their panel, so the settings are kept here. */
+  getSettings() {
+    return { attitude: this.attitude, isStreaming: this.isStreaming, fault: this.fault }
+  }
+
   setAttitude(attitude: Attitude) {
     this.attitude = attitude
   }

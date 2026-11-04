@@ -246,6 +246,7 @@ export class FlightStore {
       horizontalSpeed: Math.hypot(velocity.x, velocity.z),
       verticalSpeed: velocity.y,
       position: { x: position.x, y: position.y, z: position.z },
+      attitude: { ...this.drone.attitude },
       isAtBoundary,
       cameraMode: this.cameraMode,
       message: this.message,

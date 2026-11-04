@@ -34,6 +34,8 @@ export interface FlightSnapshot {
   horizontalSpeed: number
   verticalSpeed: number
   position: { x: number; y: number; z: number }
+  /** The virtual drone's orientation, in degrees. */
+  attitude: { roll: number; pitch: number; yaw: number }
   /** True while the drone is held at the edge of the flight area. */
   isAtBoundary: boolean
   cameraMode: CameraMode

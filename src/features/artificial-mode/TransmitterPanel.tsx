@@ -8,11 +8,11 @@ import {
 import type { FlightStore } from '../../stores/flightStore'
 import type { ServerStatus, TransmitterChannel, TransmitterHealth } from '../../types/transmitter'
 
-const HEALTH_DISPLAY: Record<TransmitterHealth, { label: string; dotClass: string }> = {
+export const HEALTH_DISPLAY: Record<TransmitterHealth, { label: string; dotClass: string }> = {
   connected: { label: 'Connected', dotClass: 'bg-emerald-400' },
   waiting: { label: 'Waiting for data', dotClass: 'bg-sky-400' },
   disconnected: { label: 'Disconnected', dotClass: 'bg-slate-500' },
-  'signal-lost': { label: 'Signal lost', dotClass: 'bg-amber-400' },
+  'signal-lost': { label: 'Signal lost', dotClass: 'bg-warn' },
   invalid: { label: 'Invalid data', dotClass: 'bg-red-500' },
 }
 
@@ -47,8 +47,7 @@ function Row({ label, value, name }: { label: string; value: string; name: strin
   )
 }
 
-const FORM_BUTTON_CLASS =
-  'rounded-md border border-slate-700 px-2.5 py-1.5 text-xs font-medium hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent'
+const FORM_BUTTON_CLASS = 'glass-button'
 
 interface ReceiverAddressFormProps {
   source: TransmitterInputSource
@@ -88,7 +87,7 @@ function ReceiverAddressForm({ source, store, configuredUrl }: ReceiverAddressFo
   }
 
   return (
-    <form className="mt-3 border-t border-slate-800 pt-3 text-xs" onSubmit={apply}>
+    <form className="mt-3 border-t border-white/10 pt-3 text-xs" onSubmit={apply}>
       <label className="block text-slate-400">
         Receiver address
         <input
@@ -96,7 +95,7 @@ function ReceiverAddressForm({ source, store, configuredUrl }: ReceiverAddressFo
           inputMode="url"
           autoComplete="off"
           spellCheck={false}
-          className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-slate-100 disabled:opacity-50"
+          className="mt-1 w-full rounded-md border border-white/15 bg-slate-950/60 px-2 py-1.5 text-slate-100 disabled:opacity-50"
           value={draft}
           disabled={isLocked}
           data-tx="address-input"
@@ -156,7 +155,7 @@ export function TransmitterPanel({
   return (
     <section
       aria-label="Transmitter"
-      className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+      className="glass-section"
       data-tx-health={health}
     >
       <div className="flex items-center gap-2.5" role="status">
@@ -164,7 +163,7 @@ export function TransmitterPanel({
         <h2 className="text-sm font-semibold">Transmitter: {label}</h2>
       </div>
       {problem && (
-        <p className="mt-2 text-sm text-amber-300" data-tx="problem">
+        <p className="mt-2 text-sm text-warn" data-tx="problem">
           {problem}.
         </p>
       )}
@@ -185,7 +184,7 @@ export function TransmitterPanel({
         <Row label="Freshness" value={freshness} name="freshness" />
       </dl>
 
-      <table className="mt-3 w-full border-t border-slate-800 text-xs">
+      <table className="mt-3 w-full border-t border-white/10 text-xs">
         <thead>
           <tr className="text-left text-slate-400">
             <th className="pt-2 font-normal">Channel</th>

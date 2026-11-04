@@ -19,8 +19,7 @@ const FAULTS: { value: MockFault; label: string }[] = [
   { value: 'missing-field', label: 'Yaw missing' },
 ]
 
-const BUTTON_CLASS =
-  'rounded-md border border-slate-700 px-2.5 py-1.5 text-xs font-medium hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent'
+const BUTTON_CLASS = 'glass-button'
 
 interface MockTelemetryControlsProps {
   mock: MockTelemetryProvider
@@ -30,9 +29,9 @@ interface MockTelemetryControlsProps {
 /** Development only. Everything set here is simulated and has nothing to do with the real drone. */
 export function MockTelemetryControls({ mock, store }: MockTelemetryControlsProps) {
   const { health } = useTelemetryState(store)
-  const [attitude, setAttitude] = useState(NEUTRAL)
-  const [isStreaming, setIsStreaming] = useState(false)
-  const [fault, setFault] = useState<MockFault>('none')
+  const [attitude, setAttitude] = useState(() => mock.getSettings().attitude)
+  const [isStreaming, setIsStreaming] = useState(() => mock.getSettings().isStreaming)
+  const [fault, setFault] = useState<MockFault>(() => mock.getSettings().fault)
 
   const isDisconnected = health === 'disconnected'
 
@@ -55,9 +54,9 @@ export function MockTelemetryControls({ mock, store }: MockTelemetryControlsProp
   return (
     <section
       aria-label="Mock telemetry controls"
-      className="rounded-lg border border-amber-400/50 bg-amber-950/20 p-4"
+      className="glass-section !border-warn/50"
     >
-      <h2 className="text-sm font-semibold text-amber-300">Simulated data controls</h2>
+      <h2 className="text-sm font-semibold text-warn">Simulated data controls</h2>
       <p className="mt-1 text-xs text-slate-400">Development only. Not connected to the real drone.</p>
 
       <div className="mt-3 space-y-2">
@@ -69,7 +68,7 @@ export function MockTelemetryControls({ mock, store }: MockTelemetryControlsProp
             </span>
             <input
               type="range"
-              className="mt-1 w-full accent-amber-400"
+              className="mt-1 w-full accent-warn"
               min={min}
               max={max}
               value={attitude[axis]}
@@ -85,7 +84,7 @@ export function MockTelemetryControls({ mock, store }: MockTelemetryControlsProp
       <label className="mt-3 block text-xs text-slate-300">
         Send bad readings
         <select
-          className="mt-1 w-full rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5"
+          className="mt-1 w-full rounded-md border border-white/15 bg-slate-950/60 px-2 py-1.5"
           value={fault}
           disabled={isDisconnected}
           onChange={(event) => changeFault(event.target.value as MockFault)}

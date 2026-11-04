@@ -4,6 +4,4 @@ export interface ModeMetadata {
   id: OperatingMode
   title: string
   description: string
-  inputSource: string
-  statusMessage: string
 }
