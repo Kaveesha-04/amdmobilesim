@@ -1,29 +1,33 @@
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Suspense, useState, type ReactNode } from 'react'
+import type { Vector3Tuple } from 'three'
+import type { CameraPreset } from '../../config/camera'
+import type { FlightArea } from '../../config/world'
 import { isWebGLAvailable } from '../../utils/webgl'
 import { ErrorBoundary } from '../common/ErrorBoundary'
 import { Notice } from '../common/Notice'
-import { GroundPlane } from './GroundPlane'
+import { OutdoorEnvironment } from '../environment/OutdoorEnvironment'
 import { ModelLoadingIndicator } from './ModelLoadingIndicator'
 import { MoonLadyDrone } from './MoonLadyDrone'
-import { SceneLighting } from './SceneLighting'
-
-const BACKGROUND_COLOR = '#0b1220'
-
-/** High enough that the propellers clear the ground when the drone rolls or pitches. */
-const DRONE_HOME_POSITION: [number, number, number] = [0, 0.35, 0]
+import { SceneCamera } from './SceneCamera'
 
 interface DroneSceneProps {
   /** Sizes the scene. The canvas fills this box, so it needs a height. */
   className?: string
-  /** What to show as the drone. Defaults to the MoonLady Beta 1 model. */
+  dronePosition: Vector3Tuple
+  camera: CameraPreset
+  /** Shows this area's boundary. Leave it out for no boundary. */
+  flightArea?: FlightArea
+  /** What to show as the drone. Defaults to the MoonLady Beta 1 model at dronePosition. */
   children?: ReactNode
 }
 
 export function DroneScene({
   className = '',
-  children = <MoonLadyDrone position={DRONE_HOME_POSITION} />,
+  dronePosition,
+  camera,
+  flightArea,
+  children = <MoonLadyDrone position={dronePosition} />,
 }: DroneSceneProps) {
   const [canRender] = useState(isWebGLAvailable)
 
@@ -46,21 +50,8 @@ export function DroneScene({
       <div className={`relative overflow-hidden rounded-lg border border-slate-800 ${className}`}>
         {/* Renders only when something changes, because the glass pass is costly to redraw. */}
         <Canvas frameloop="demand" shadows="percentage">
-          <color attach="background" args={[BACKGROUND_COLOR]} />
-          <fog attach="fog" args={[BACKGROUND_COLOR, 6, 16]} />
-          <PerspectiveCamera makeDefault fov={50} near={0.01} position={[0.55, 0.65, 0.75]} />
-          {/* Panning would move the orbit centre, which could take the camera below the ground. */}
-          <OrbitControls
-            makeDefault
-            target={[0, 0.38, 0]}
-            enablePan={false}
-            dampingFactor={0.08}
-            minDistance={0.3}
-            maxDistance={4}
-            maxPolarAngle={Math.PI / 2}
-          />
-          <SceneLighting />
-          <GroundPlane />
+          <SceneCamera preset={camera} dronePosition={dronePosition} />
+          <OutdoorEnvironment focus={dronePosition} flightArea={flightArea} />
           <Suspense fallback={null}>{children}</Suspense>
         </Canvas>
         <ModelLoadingIndicator />
