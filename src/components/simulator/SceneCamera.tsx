@@ -2,6 +2,8 @@ import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import type { Vector3Tuple } from 'three'
 import type { CameraPreset } from '../../config/camera'
 import { DRONE_CENTRE_HEIGHT } from '../../config/world'
+import { getCameraZoom } from '../../stores/cameraZoom'
+import { CameraZoomRig } from './CameraZoomRig'
 
 interface SceneCameraProps {
   preset: CameraPreset
@@ -35,6 +37,7 @@ export function SceneCamera({ preset, dronePosition }: SceneCameraProps) {
         maxDistance={preset.maxDistance}
         maxPolarAngle={Math.PI / 2}
       />
+      <CameraZoomRig zoom={getCameraZoom(preset)} />
     </>
   )
 }

@@ -52,6 +52,13 @@ export function HelpPanel() {
           or click the scene to close it. The simulation keeps running behind panels.
         </PanelText>
       </section>
+      <section className="space-y-2" data-help="zoom">
+        <PanelHeading>Looking closer</PanelHeading>
+        <PanelText>
+          Use the zoom bar above the menu, or scroll over the scene, to move closer to the drone or
+          further away.
+        </PanelText>
+      </section>
       <section className="space-y-2" data-help="safety">
         <PanelHeading>Safety</PanelHeading>
         <PanelText>

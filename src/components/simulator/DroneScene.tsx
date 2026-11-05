@@ -3,10 +3,12 @@ import { Suspense, useState, type ReactNode } from 'react'
 import type { Vector3, Vector3Tuple } from 'three'
 import type { CameraPreset } from '../../config/camera'
 import type { FlightArea } from '../../config/world'
+import { getCameraZoom } from '../../stores/cameraZoom'
 import { isWebGLAvailable } from '../../utils/webgl'
 import { ErrorBoundary } from '../common/ErrorBoundary'
 import { Notice } from '../common/Notice'
 import { OutdoorEnvironment } from '../environment/OutdoorEnvironment'
+import { CameraZoomControl } from './CameraZoomControl'
 import { ModelLoadingIndicator } from './ModelLoadingIndicator'
 import { MoonLadyDrone } from './MoonLadyDrone'
 import { RenderQuality } from './RenderQuality'
@@ -64,6 +66,7 @@ export function DroneScene({
         </Canvas>
         <ModelLoadingIndicator />
         {overlay}
+        <CameraZoomControl zoom={getCameraZoom(camera)} />
       </div>
     </ErrorBoundary>
   )
