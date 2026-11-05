@@ -12,6 +12,7 @@ import { TransmitterInputSource } from '../../services/flightInput/TransmitterIn
 import { parseCalibration } from '../../services/transmitter/calibration'
 import { loadSavedReceiverUrl } from '../../services/transmitter/receiverUrl'
 import { TransmitterService } from '../../services/transmitter/transmitterService'
+import { getCameraZoom } from '../../stores/cameraZoom'
 import { FlightStore } from '../../stores/flightStore'
 import { useRegisterModeRuntime } from '../../hooks/useModeRuntime'
 import type { ArtificialRuntime } from '../../stores/ModeRuntimeContext'
@@ -71,7 +72,7 @@ export default function ArtificialModeView() {
       }
     >
       <FlightDrone store={store} />
-      <FollowCamera store={store} />
+      <FollowCamera store={store} zoom={getCameraZoom(FLIGHT_CAMERA)} />
     </DroneScene>
   )
 }

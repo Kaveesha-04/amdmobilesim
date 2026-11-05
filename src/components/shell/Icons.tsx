@@ -70,3 +70,18 @@ export const ExitFullscreenIcon = () => (
     <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
   </Icon>
 )
+export const MinusIcon = () => (
+  <Icon className="size-4">
+    <path d="M5 12h14" />
+  </Icon>
+)
+export const PlusIcon = () => (
+  <Icon className="size-4">
+    <path d="M5 12h14M12 5v14" />
+  </Icon>
+)
+export const ResetIcon = () => (
+  <Icon className="size-4">
+    <path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5" />
+  </Icon>
+)
