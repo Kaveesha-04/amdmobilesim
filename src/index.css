@@ -1,14 +1,85 @@
 @import 'tailwindcss';
 
-/* Each operating mode has one accent colour, so the active mode is recognisable at a glance. */
-[data-mode='natural'] {
-  --mode-accent: #2dd4bf;
+@theme {
+  --color-accent: #66d575;
+  --color-warn: #ff7556;
+  --color-surface: #080d18;
 }
 
-[data-mode='artificial'] {
-  --mode-accent: #fbbf24;
+/* Rem-based sizes scale with this, so the interface stays legible from a laptop to a large LED wall. */
+html {
+  font-size: clamp(14px, 0.83vw, 24px);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-surface text-slate-50 antialiased;
+}
+
+@layer components {
+  /*
+   * The brightness filter darkens what's behind the glass. Over the bright sky, the
+   * tint alone would leave secondary text too faint to read.
+   */
+  .glass {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 32px rgba(2, 6, 23, 0.45);
+    backdrop-filter: blur(16px) brightness(0.45);
+  }
+
+  /* A group of readings inside a glass panel. */
+  .glass-section {
+    @apply rounded-xl border border-white/10 bg-slate-950/30 p-4;
+  }
+
+  .glass-button {
+    @apply cursor-pointer rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium transition-colors duration-150 hover:border-white/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-white/15 disabled:hover:bg-white/5;
+  }
+
+  .panel-enter {
+    animation: panel-in 180ms ease-out both;
+  }
+
+  .panel-exit {
+    animation: panel-out 160ms ease-in both;
+  }
+}
+
+/* Transform and opacity only, as these don't make the browser lay out or repaint the page. */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+}
+
+@keyframes panel-out {
+  to {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+}
+
+html[data-reduce-glass] .glass {
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: none;
+}
+
+html[data-reduce-glass] [data-motor-gauge],
+html[data-reduce-glass] [data-layout-intensity] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-enter,
+  .panel-exit {
+    animation-duration: 1ms;
+  }
 }

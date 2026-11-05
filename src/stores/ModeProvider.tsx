@@ -3,7 +3,8 @@ import type { OperatingMode } from '../types/mode'
 import { ModeContext } from './ModeContext'
 
 export function ModeProvider({ children }: { children: ReactNode }) {
-  const [activeMode, setActiveMode] = useState<OperatingMode | null>(null)
+  // Natural Mode comes first because it leaves the keyboard alone until a visitor chooses to fly.
+  const [activeMode, setActiveMode] = useState<OperatingMode>('natural')
 
   const value = useMemo(() => ({ activeMode, selectMode: setActiveMode }), [activeMode])
 

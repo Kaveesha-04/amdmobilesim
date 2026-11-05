@@ -1,13 +1,10 @@
-import { AppLayout } from './components/layout/AppLayout'
-import { DashboardPage } from './pages/DashboardPage'
+import { SimulatorShell } from './components/shell/SimulatorShell'
 import { ModeProvider } from './stores/ModeProvider'
 
 export default function App() {
   return (
     <ModeProvider>
-      <AppLayout>
-        <DashboardPage />
-      </AppLayout>
+      <SimulatorShell />
     </ModeProvider>
   )
 }

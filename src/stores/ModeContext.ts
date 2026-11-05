@@ -2,8 +2,7 @@ import { createContext } from 'react'
 import type { OperatingMode } from '../types/mode'
 
 export interface ModeContextValue {
-  /** The selected operating mode, or null until the user picks one. */
-  activeMode: OperatingMode | null
+  activeMode: OperatingMode
   selectMode: (mode: OperatingMode) => void
 }
 
