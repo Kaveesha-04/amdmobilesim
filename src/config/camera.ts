@@ -21,23 +21,26 @@ export interface CameraPreset {
  */
 const CLOSEST_DISTANCE = 0.45
 
-/** Close up, for looking over the model. */
-const INSPECTION_OFFSET: Vector3Tuple = [0.55, 0.27, 0.75]
+/** Far enough back to show the drone on its stand with the hall behind it. */
+const INSPECTION_OFFSET: Vector3Tuple = [1.05, 0.55, 1.6]
 
 export const INSPECTION_CAMERA: CameraPreset = {
   fov: 50,
   offset: INSPECTION_OFFSET,
   minDistance: CLOSEST_DISTANCE,
-  maxDistance: 4,
+  maxDistance: 8,
   defaultDistance: Math.hypot(...INSPECTION_OFFSET),
 }
 
-/** From behind the drone, facing the way it points, and able to pull back over the whole area. */
+/**
+ * From behind the drone, facing the way it points. Pulled all the way back with the
+ * drone in the middle of the flight area, the camera is still inside the hall.
+ */
 export const FLIGHT_CAMERA: CameraPreset = {
   fov: 55,
   offset: [0.9, 0.6, 1.8],
   minDistance: CLOSEST_DISTANCE,
-  maxDistance: 60,
+  maxDistance: 26,
   // The drone starts with the follow camera on, so this is the distance visitors first see.
   defaultDistance: Math.hypot(FOLLOW_CAMERA.distanceBehind, FOLLOW_CAMERA.heightAbove),
 }

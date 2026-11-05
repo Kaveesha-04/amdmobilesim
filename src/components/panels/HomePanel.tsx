@@ -13,12 +13,12 @@ export function HomePanel() {
   return (
     <>
       <div>
-        <p className="text-2xl font-semibold tracking-tight">MoonLady Beta 1</p>
+        <p className="text-2xl font-semibold tracking-tight">Adaptable and Modular Drone</p>
         <p className="text-sm text-accent">Drone visualization and flight simulator</p>
       </div>
       <PanelText>
-        See the MoonLady drone in 3D, follow its orientation, and take the controls of a virtual
-        copy. Nothing here flies the real drone.
+        See the drone in 3D, follow its orientation, and take the controls of a virtual copy.
+        Nothing here flies the real drone.
       </PanelText>
       <div className="space-y-2">
         <PanelHeading>Current mode</PanelHeading>

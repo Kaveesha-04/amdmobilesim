@@ -7,7 +7,7 @@ const POST_HEIGHT = 1.5
 const POST_RADIUS = 0.06
 
 /** A visual marker only: it doesn't stop anything from crossing it. */
-export function FlightBoundary({ area }: { area: FlightArea }) {
+export function FlightBoundary({ area, color = BOUNDARY_COLOR }: { area: FlightArea; color?: string }) {
   const { width, depth, height } = area
 
   const edges = useMemo(
@@ -25,12 +25,12 @@ export function FlightBoundary({ area }: { area: FlightArea }) {
   return (
     <group name="FlightBoundary" position={[0, GROUND_HEIGHT, 0]}>
       <lineSegments name="FlightBoundaryEdges" geometry={edges} position={[0, height / 2, 0]}>
-        <lineBasicMaterial color={BOUNDARY_COLOR} transparent opacity={0.45} />
+        <lineBasicMaterial color={color} transparent opacity={0.45} />
       </lineSegments>
       {corners.map(([x, z]) => (
         <mesh key={`${x},${z}`} position={[x, POST_HEIGHT / 2, z]}>
           <cylinderGeometry args={[POST_RADIUS, POST_RADIUS, POST_HEIGHT, 8]} />
-          <meshStandardMaterial color={BOUNDARY_COLOR} />
+          <meshStandardMaterial color={color} />
         </mesh>
       ))}
     </group>

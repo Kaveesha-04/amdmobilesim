@@ -10,16 +10,28 @@ const RESOLUTION: Record<GraphicsQuality, () => number> = {
   performance: () => 0.75,
 }
 
-/** Goes inside the canvas, where it can change the resolution without rebuilding the scene. */
+/**
+ * The drone's clear acrylic plate makes the renderer redraw the scene behind it every
+ * frame. This small a detail doesn't need that at full resolution.
+ */
+const TRANSMISSION_RESOLUTION_SCALE = 0.5
+
+/** Set on the Canvas itself, which would otherwise put back its own default when it renders. */
+export const getRenderResolution = (quality: GraphicsQuality) => RESOLUTION[quality]()
+
+/** Goes inside the canvas, where it can reach the renderer. */
 export function RenderQuality() {
   const { graphicsQuality } = useDisplayPreferences()
-  const setDpr = useThree((state) => state.setDpr)
   const invalidate = useThree((state) => state.invalidate)
+  const renderer = useThree((state) => state.gl)
 
   useEffect(() => {
-    setDpr(RESOLUTION[graphicsQuality]())
+    renderer.transmissionResolutionScale = TRANSMISSION_RESOLUTION_SCALE
+  }, [renderer])
+
+  useEffect(() => {
     invalidate()
-  }, [graphicsQuality, setDpr, invalidate])
+  }, [graphicsQuality, invalidate])
 
   return null
 }

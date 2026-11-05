@@ -3,6 +3,7 @@ import type { Vector3Tuple } from 'three'
 import type { CameraPreset } from '../../config/camera'
 import { DRONE_CENTRE_HEIGHT } from '../../config/world'
 import { getCameraZoom } from '../../stores/cameraZoom'
+import { CameraBounds } from './CameraBounds'
 import { CameraZoomRig } from './CameraZoomRig'
 
 interface SceneCameraProps {
@@ -38,6 +39,7 @@ export function SceneCamera({ preset, dronePosition }: SceneCameraProps) {
         maxPolarAngle={Math.PI / 2}
       />
       <CameraZoomRig zoom={getCameraZoom(preset)} />
+      <CameraBounds zoom={getCameraZoom(preset)} />
     </>
   )
 }
