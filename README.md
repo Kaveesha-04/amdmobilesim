@@ -110,6 +110,8 @@ Arming is refused if the throttle is above 5% or the drone is in the air, so it 
 
 In the Artificial Mode panel, choose **Motor Monitor** to see each of the four motors' output, estimated RPM and running status. A motor at 85% output or more is shown as near its limit.
 
+In the 3D view, a small display beside each motor shows its live output as a bar and a percentage. These move with the drone, and appear only in Artificial Mode, because Natural Mode has no measured motor speeds. Turn them on or off with **Speed indicators on drone** in the Motor Monitor.
+
 The RPM is illustrative: output (0 to 1) × 12,000. It isn't measured from the real motors.
 
 ### The flight area
@@ -126,7 +128,7 @@ Transmitter → ESP32 → Signal Receiver (Node.js, port 3000) → Simulator
 
 The flow is one way: nothing is sent back to the drone.
 
-> **Calibration is required.** Flying by transmitter stays off until it's set. There is deliberately no default, because a wrong guess could send the virtual drone off at full stick.
+> **No calibration step is needed.** The team shares one transmitter, so its measured values are built into `src/config/transmitter.ts` and every laptop uses them.
 
 ### 1. Start the Signal Receiver
 
@@ -149,14 +151,9 @@ The ESP32 sends JSON to `POST /api/telemetry`, for example:
 { "throttle": 1000, "yaw": 0, "pitch": 0, "roll": 0, "nrf_ok": true }
 ```
 
-These values are only an example, and the real ranges come from your transmitter.
+### 2. Check the calibration
 
-### 2. Calibrate
-
-1. Copy `.env.example` to `.env.local`.
-2. Move each stick to its limits while watching the receiver's dashboard, or the **Raw** column in the Telemetry panel. Note its values.
-3. Set `VITE_TRANSMITTER_CALIBRATION` on one line, using the format in `.env.example`. The numbers there only show the format and aren't real values.
-4. Restart `npm run dev`.
+The built-in values only need changing if you use a different transmitter or a stick moves the wrong way. They're in `TRANSMITTER_CALIBRATION`, in raw transmitter units:
 
 | Setting | Meaning |
 |---|---|
@@ -242,8 +239,7 @@ These values live in `src/config/flight.ts`.
 
 - **The physics is a simplified teaching model.** It is chosen to feel believable, and isn't measured from the real drone, so it can't predict how the real drone will fly.
 - **Natural Mode has no real data source yet.** It only runs on simulated data, and only in development.
-- **Real transmitter ranges haven't been measured,** so no calibration ships with the project.
-- **The ESP32's real sending rate hasn't been measured,** so the 1-second signal timeout should be checked against it.
+- **The transmitter's stick directions aren't confirmed yet.** Its ranges and sending rate have been measured, but `invert` hasn't been checked in a real flight.
 - **Motor numbering and RPM are the simulator's own,** and say nothing about the real drone's wiring or motors.
 
 ## Troubleshooting
@@ -254,7 +250,6 @@ These values live in `src/config/flight.ts`.
 | *Lower the throttle to arm* | Hold **↓** until the throttle reads 5% or less |
 | *Cannot arm in the air* | Land first, or press **R** to reset |
 | The drone won't lift off | Raise the throttle above 50% |
-| *Calibration is not set* | Follow the [calibration steps](#2-calibrate), then restart Vite |
 | Transmitter shows *Disconnected* | Start the Signal Receiver and check the receiver address |
 | Input or address options are locked | Disarm and land first |
 | Low frame rate | Lower **Graphics quality** in Settings, or turn on **Reduce visual effects** |

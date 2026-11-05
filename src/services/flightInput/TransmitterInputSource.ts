@@ -35,21 +35,15 @@ export class TransmitterInputSource implements FlightInputSource {
   readonly name = 'Transmitter'
 
   private readonly service: TransmitterService
-  private readonly calibration: TransmitterCalibration | null
-  private readonly calibrationError: string | null
+  private readonly calibration: TransmitterCalibration
   private readonly listeners = new Set<(event: FlightInputEvent) => void>()
   private readonly statusListeners = new Set<() => void>()
   private unsubscribeFromService: (() => void) | null = null
   private status: TransmitterStatus
 
-  constructor(
-    service: TransmitterService,
-    calibration: TransmitterCalibration | null,
-    calibrationError: string | null,
-  ) {
+  constructor(service: TransmitterService, calibration: TransmitterCalibration) {
     this.service = service
     this.calibration = calibration
-    this.calibrationError = calibrationError
     this.status = this.createStatus()
   }
 
@@ -124,8 +118,14 @@ export class TransmitterInputSource implements FlightInputSource {
       }
     }
 
-    if (!this.calibration || !state.raw) {
-      return { state, health: state.health, controls: null, fault: this.calibrationError, receiverUrl }
+    if (!state.raw) {
+      return {
+        state,
+        health: state.health,
+        controls: null,
+        fault: 'Waiting for transmitter data',
+        receiverUrl,
+      }
     }
 
     const result = normalizeControls(state.raw, this.calibration)

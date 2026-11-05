@@ -127,8 +127,6 @@ interface TransmitterPanelProps {
   source: TransmitterInputSource
   store: FlightStore
   configuredUrl: string
-  /** Why calibration can't be used, or null if it's set. */
-  calibrationError: string | null
   staleAfterMs: number
 }
 
@@ -136,7 +134,6 @@ export function TransmitterPanel({
   source,
   store,
   configuredUrl,
-  calibrationError,
   staleAfterMs,
 }: TransmitterPanelProps) {
   const { state, health, controls } = useSyncExternalStore(source.subscribeToStatus, source.getStatus)
@@ -165,11 +162,6 @@ export function TransmitterPanel({
       {problem && (
         <p className="mt-2 text-sm text-warn" data-tx="problem">
           {problem}.
-        </p>
-      )}
-      {calibrationError && (
-        <p className="mt-2 text-sm text-red-300" data-tx="calibration">
-          {calibrationError}. Flying by transmitter is off until it is set. See .env.example.
         </p>
       )}
 

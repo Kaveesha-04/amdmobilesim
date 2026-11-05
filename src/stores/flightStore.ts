@@ -29,6 +29,8 @@ export class FlightStore {
   readonly renderQuaternion = new Quaternion()
   /** The rotation of each propeller about its shaft, in the order of PROPELLERS. */
   readonly propellerAngles = PROPELLERS.map(() => 0)
+  /** Each motor's output from 0 to 1, in the order of PROPELLERS, as of the latest physics step. */
+  readonly motors = PROPELLERS.map(() => 0)
 
   private readonly source: FlightInputSource
   private readonly area: FlightArea
@@ -38,7 +40,6 @@ export class FlightStore {
   private cameraMode: CameraMode = 'follow'
   private message: string | null = null
 
-  private readonly motors = PROPELLERS.map(() => 0)
   private readonly motorTargets = PROPELLERS.map(() => 0)
   private readonly previousPosition = new Vector3()
   private readonly previousQuaternion = new Quaternion()
