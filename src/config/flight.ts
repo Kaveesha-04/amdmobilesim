@@ -57,13 +57,27 @@ export const DRONE_START_POSITION: Vector3Tuple = [0, DRONE_GROUND_Y, 0]
  * above, which is positive rotation about the shaft's local +Y. Opposite corners
  * turn the same way, as on a real quadcopter. The blades' pitch wasn't checked
  * against this, and the direction is only visual.
+ *
+ * `motor` and `position` are for display, and `side` and `end` give the corner as in
+ * the model: left is -X and front is -Z, as read from Motor_*_Base in the GLB. The
+ * numbering is this simulator's own, and says nothing about the real drone's wiring.
  */
 export const PROPELLERS = [
-  { name: 'Propeller_FL', direction: -1, rollMix: 1, pitchMix: -1, yawMix: -1 },
-  { name: 'Propeller_FR', direction: 1, rollMix: -1, pitchMix: -1, yawMix: 1 },
-  { name: 'Propeller_RL', direction: 1, rollMix: 1, pitchMix: 1, yawMix: 1 },
-  { name: 'Propeller_RR', direction: -1, rollMix: -1, pitchMix: 1, yawMix: -1 },
+  { name: 'Propeller_FL', motor: 1, position: 'Front Left', side: -1, end: -1, direction: -1, rollMix: 1, pitchMix: -1, yawMix: -1 },
+  { name: 'Propeller_FR', motor: 2, position: 'Front Right', side: 1, end: -1, direction: 1, rollMix: -1, pitchMix: -1, yawMix: 1 },
+  { name: 'Propeller_RL', motor: 3, position: 'Rear Left', side: -1, end: 1, direction: 1, rollMix: 1, pitchMix: 1, yawMix: 1 },
+  { name: 'Propeller_RR', motor: 4, position: 'Rear Right', side: 1, end: 1, direction: -1, rollMix: -1, pitchMix: 1, yawMix: -1 },
 ] as const
+
+/**
+ * The estimated RPM shown at full virtual motor output: RPM = output (0 to 1) x this.
+ * It only sets the scale of the Motor Monitor, and changes nothing in the simulation.
+ * It is an illustrative figure, not measured from or specified for the real motors.
+ */
+export const VIRTUAL_MOTOR_MAX_RPM = 12000
+
+/** At or above this output, the Motor Monitor shows a motor as near its limit. */
+export const MOTOR_HIGH_OUTPUT = 0.85
 
 /** The on-screen speed at full motor output, slow enough not to strobe at 60 frames a second. */
 export const PROPELLER_MAX_RADIANS_PER_SECOND = 70

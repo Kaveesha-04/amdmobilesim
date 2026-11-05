@@ -72,6 +72,11 @@ html[data-reduce-glass] .glass {
   backdrop-filter: none;
 }
 
+html[data-reduce-glass] [data-motor-gauge],
+html[data-reduce-glass] [data-layout-intensity] {
+  transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel-enter,
   .panel-exit {

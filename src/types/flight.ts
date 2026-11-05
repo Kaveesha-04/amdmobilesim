@@ -36,6 +36,8 @@ export interface FlightSnapshot {
   position: { x: number; y: number; z: number }
   /** The virtual drone's orientation, in degrees. */
   attitude: { roll: number; pitch: number; yaw: number }
+  /** Each virtual motor's output from 0 to 1, in the order of PROPELLERS. */
+  motorOutputs: number[]
   /** True while the drone is held at the edge of the flight area. */
   isAtBoundary: boolean
   cameraMode: CameraMode

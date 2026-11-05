@@ -247,6 +247,7 @@ export class FlightStore {
       verticalSpeed: velocity.y,
       position: { x: position.x, y: position.y, z: position.z },
       attitude: { ...this.drone.attitude },
+      motorOutputs: [...this.motors],
       isAtBoundary,
       cameraMode: this.cameraMode,
       message: this.message,

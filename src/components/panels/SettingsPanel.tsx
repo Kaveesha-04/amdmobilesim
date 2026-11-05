@@ -88,7 +88,7 @@ export function SettingsPanel() {
       <section className="space-y-3">
         <PanelHeading>Display</PanelHeading>
         <Toggle
-          label="Reduce glass effects"
+          label="Reduce visual effects"
           name="reduce-glass"
           checked={reduceGlass}
           onChange={(next) => setDisplayPreferences({ reduceGlass: next })}
