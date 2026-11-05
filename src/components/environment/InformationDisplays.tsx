@@ -24,7 +24,7 @@ interface Display extends DisplayContent, Placement {}
 const DISPLAYS: Display[] = [
   {
     title: 'Adaptable and Modular Drone',
-    subtitle: 'Aerospace Drone Exhibit',
+    subtitle: 'A Drone from Sketch',
     graphic: 'brand',
     position: [0, 4.2, -WALL + MOUNT_DEPTH],
     rotationY: ON_NORTH_WALL,
@@ -39,8 +39,8 @@ const DISPLAYS: Display[] = [
     width: 8,
   },
   {
-    title: 'Wireless Communication',
-    subtitle: 'Drone to Ground Link',
+    title: 'Drone Software Suite',
+    subtitle: 'Aeronexus Flight v1',
     graphic: 'waves',
     position: [15, 4, -WALL + MOUNT_DEPTH],
     rotationY: ON_NORTH_WALL,
