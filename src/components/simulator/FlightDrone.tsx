@@ -4,6 +4,7 @@ import type { Group, Object3D } from 'three'
 import { PROPELLERS } from '../../config/flight'
 import type { FlightStore } from '../../stores/flightStore'
 import { MoonLadyDrone } from './MoonLadyDrone'
+import { MotorIndicators } from './MotorIndicators'
 
 /**
  * Draws the virtual drone where the simulation says it is. It only copies values,
@@ -49,6 +50,7 @@ export function FlightDrone({ store }: { store: FlightStore }) {
   return (
     <group ref={body} name="FlightDrone">
       <MoonLadyDrone />
+      <MotorIndicators store={store} />
     </group>
   )
 }

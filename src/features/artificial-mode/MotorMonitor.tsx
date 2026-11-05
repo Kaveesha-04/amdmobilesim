@@ -1,5 +1,7 @@
 import { memo, useSyncExternalStore } from 'react'
 import { MOTOR_HIGH_OUTPUT, PROPELLERS, VIRTUAL_MOTOR_MAX_RPM } from '../../config/flight'
+import { useDisplayPreferences } from '../../hooks/useDisplayPreferences'
+import { setDisplayPreferences } from '../../stores/displayPreferences'
 import type { FlightStore } from '../../stores/flightStore'
 import { readMotor, summarizeMotors } from './motorReadings'
 
@@ -170,6 +172,7 @@ function Summary({ label, value, name }: { label: string; value: string; name: s
 export function MotorMonitor({ store }: { store: FlightStore }) {
   const { motorOutputs } = useSyncExternalStore(store.subscribe, store.getSnapshot)
   const summary = summarizeMotors(motorOutputs)
+  const { showMotorIndicators } = useDisplayPreferences()
 
   return (
     <section aria-label="Motor Monitor" className="glass-section space-y-3">
@@ -181,6 +184,17 @@ export function MotorMonitor({ store }: { store: FlightStore }) {
           the real drone.
         </p>
       </div>
+
+      <button
+        type="button"
+        aria-pressed={showMotorIndicators}
+        className="glass-button flex w-full items-center justify-between gap-3 aria-pressed:border-accent aria-pressed:text-accent"
+        data-motor-indicators-toggle
+        onClick={() => setDisplayPreferences({ showMotorIndicators: !showMotorIndicators })}
+      >
+        Speed indicators on drone
+        <span className="font-semibold">{showMotorIndicators ? 'On' : 'Off'}</span>
+      </button>
 
       <div className="grid grid-cols-2 gap-2">
         {PROPELLERS.map((propeller, index) => (

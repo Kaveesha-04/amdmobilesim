@@ -110,6 +110,8 @@ Arming is refused if the throttle is above 5% or the drone is in the air, so it 
 
 In the Artificial Mode panel, choose **Motor Monitor** to see each of the four motors' output, estimated RPM and running status. A motor at 85% output or more is shown as near its limit.
 
+In the 3D view, a small display beside each motor shows its live output as a bar and a percentage. These move with the drone, and appear only in Artificial Mode, because Natural Mode has no measured motor speeds. Turn them on or off with **Speed indicators on drone** in the Motor Monitor.
+
 The RPM is illustrative: output (0 to 1) × 12,000. It isn't measured from the real motors.
 
 ### The flight area

@@ -4,6 +4,7 @@ export interface DisplayPreferences {
   graphicsQuality: GraphicsQuality
   reduceGlass: boolean
   showFlightReadout: boolean
+  showMotorIndicators: boolean
 }
 
 const STORAGE_KEY = 'moonlady.displayPreferences'
@@ -12,6 +13,7 @@ const DEFAULTS: DisplayPreferences = {
   graphicsQuality: 'high',
   reduceGlass: false,
   showFlightReadout: true,
+  showMotorIndicators: true,
 }
 
 function load(): DisplayPreferences {
@@ -23,6 +25,7 @@ function load(): DisplayPreferences {
         : DEFAULTS.graphicsQuality,
       reduceGlass: saved.reduceGlass === true,
       showFlightReadout: saved.showFlightReadout !== false,
+      showMotorIndicators: saved.showMotorIndicators !== false,
     }
   } catch {
     return DEFAULTS
