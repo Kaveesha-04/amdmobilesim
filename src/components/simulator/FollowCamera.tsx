@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { useState } from 'react'
 import { MathUtils, Vector3 } from 'three'
 import { FOLLOW_CAMERA } from '../../config/flight'
+import { clampToHall } from '../../config/hall'
 import { DRONE_CENTRE_HEIGHT } from '../../config/world'
 import type { CameraZoom } from '../../stores/cameraZoom'
 import type { FlightStore } from '../../stores/flightStore'
@@ -73,6 +74,7 @@ export function FollowCamera({ store, zoom }: { store: FlightStore; zoom: Camera
       Math.max(droneCentre.y + heightAbove * scale, minHeight),
       droneCentre.z + Math.cos(heading) * distanceBehind * scale,
     )
+    clampToHall(state.desiredPosition)
 
     camera.position.lerp(state.desiredPosition, 1 - Math.exp(-seconds / positionTimeConstantSeconds))
     state.lookTarget.lerp(droneCentre, 1 - Math.exp(-seconds / targetTimeConstantSeconds))

@@ -3,15 +3,16 @@ import { Suspense, useState, type ReactNode } from 'react'
 import type { Vector3, Vector3Tuple } from 'three'
 import type { CameraPreset } from '../../config/camera'
 import type { FlightArea } from '../../config/world'
+import { useDisplayPreferences } from '../../hooks/useDisplayPreferences'
 import { getCameraZoom } from '../../stores/cameraZoom'
 import { isWebGLAvailable } from '../../utils/webgl'
 import { ErrorBoundary } from '../common/ErrorBoundary'
 import { Notice } from '../common/Notice'
-import { OutdoorEnvironment } from '../environment/OutdoorEnvironment'
+import { ExhibitionHall } from '../environment/ExhibitionHall'
 import { CameraZoomControl } from './CameraZoomControl'
 import { ModelLoadingIndicator } from './ModelLoadingIndicator'
 import { MoonLadyDrone } from './MoonLadyDrone'
-import { RenderQuality } from './RenderQuality'
+import { getRenderResolution, RenderQuality } from './RenderQuality'
 import { SceneCamera } from './SceneCamera'
 
 interface DroneSceneProps {
@@ -25,7 +26,7 @@ interface DroneSceneProps {
   children?: ReactNode
   /** Interface shown over the scene. Kept outside the canvas, so that its updates don't re-render the scene. */
   overlay?: ReactNode
-  /** Keeps the sun's shadows on a drone that moves. It is read every frame, and dronePosition is used otherwise. */
+  /** Keeps the key light's shadows on a drone that moves. It is read every frame, and dronePosition is used otherwise. */
   movingFocus?: Vector3
 }
 
@@ -39,6 +40,7 @@ export function DroneScene({
   movingFocus,
 }: DroneSceneProps) {
   const [canRender] = useState(isWebGLAvailable)
+  const { graphicsQuality } = useDisplayPreferences()
 
   if (!canRender) {
     return (
@@ -58,10 +60,10 @@ export function DroneScene({
     >
       <div className={`relative overflow-hidden ${className}`}>
         {/* Renders only when something changes, because the glass pass is costly to redraw. */}
-        <Canvas frameloop="demand" shadows="percentage">
+        <Canvas frameloop="demand" shadows="percentage" dpr={getRenderResolution(graphicsQuality)}>
           <RenderQuality />
           <SceneCamera preset={camera} dronePosition={dronePosition} />
-          <OutdoorEnvironment focus={dronePosition} movingFocus={movingFocus} flightArea={flightArea} />
+          <ExhibitionHall focus={dronePosition} movingFocus={movingFocus} flightArea={flightArea} />
           <Suspense fallback={null}>{children}</Suspense>
         </Canvas>
         <ModelLoadingIndicator />
