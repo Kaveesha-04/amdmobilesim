@@ -60,7 +60,7 @@ export function HallLighting({ focus, movingFocus }: HallLightingProps) {
         intensity={420}
         decay={2}
       />
-      <pointLight color={HALL_COLORS.accent} position={[0, 1.2, 0]} intensity={1.2} distance={5} decay={2} />
+      <pointLight color={HALL_COLORS.accent} position={[0, 1.2, 0]} intensity={0.6} distance={5} decay={2} />
 
       {/* Metal and acrylic only look right with something to reflect. Built
           locally so that the scene doesn't download a lighting file at runtime. */}

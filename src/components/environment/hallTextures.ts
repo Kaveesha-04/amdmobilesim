@@ -3,6 +3,7 @@ import { HALL, HALL_COLORS, FIXTURE_LINES } from '../../config/hall'
 
 const FONT = "system-ui, 'Segoe UI', Roboto, Arial, sans-serif"
 const FLOOR_TILE_METRES = 5
+const DISPLAY_MARGIN = 50
 
 type Draw = (context: CanvasRenderingContext2D, width: number, height: number) => void
 
@@ -24,6 +25,13 @@ function createTexture(width: number, height: number, draw: Draw) {
 function once(create: () => CanvasTexture) {
   let texture: CanvasTexture | undefined
   return () => (texture ??= create())
+}
+
+/** Sets the font at the given size, or smaller if the text wouldn't otherwise fit. */
+function setFittedFont(context: CanvasRenderingContext2D, text: string, weight: number, size: number, maxWidth: number) {
+  context.font = `${weight} ${size}px ${FONT}`
+  const width = context.measureText(text).width
+  if (width > maxWidth) context.font = `${weight} ${Math.floor((size * maxWidth) / width)}px ${FONT}`
 }
 
 /** A polished tile with a fine seam around it. */
@@ -71,25 +79,27 @@ export const getFloorSheenTexture = once(() =>
     FIXTURE_LINES.forEach((x) =>
       FIXTURE_LINES.forEach((z) => smear(x, z, 4.5, 2.2, 'rgba(150, 165, 190, 0.2)')),
     )
-    smear(0, 0, 7, 7, 'rgba(102, 213, 117, 0.16)')
+    smear(0, 0, 7, 7, 'rgba(0, 127, 255, 0.09)')
   }),
 )
 
-/** MoonLady Beta 1, twice around a circle. Read from outside, with the letter tops towards the centre. */
+/** The drone's exhibition name, twice around a circle. Read from outside, with the letter tops towards the centre. */
 export const getBrandRingTexture = once(() =>
   createTexture(1024, 1024, (context, size) => {
     const centre = size / 2
     const baseline = 438
-    const text = 'MOONLADY BETA 1   •   '.repeat(2)
+    const name = 'ADAPTABLE AND MODULAR DRONE'
+    const text = `${name}   •   `.repeat(2)
 
     context.fillStyle = '#000'
     context.fillRect(0, 0, size, size)
-    context.font = `700 70px ${FONT}`
+    // Measured around the middle of the letters, as their tops close up towards the centre.
+    setFittedFont(context, text, 700, 70, 2 * Math.PI * (baseline - 30))
     context.textAlign = 'center'
-    context.fillStyle = '#D8F5DC'
+    context.fillStyle = '#DCEEFF'
 
     const totalWidth = context.measureText(text).width
-    let angle = (-context.measureText('MOONLADY BETA 1').width / 2 / totalWidth) * Math.PI * 2
+    let angle = (-context.measureText(name).width / 2 / totalWidth) * Math.PI * 2
     for (const letter of text) {
       const advance = (context.measureText(letter).width / totalWidth) * Math.PI * 2
       const middle = angle + advance / 2
@@ -221,17 +231,65 @@ function drawDisplay({ title, subtitle, graphic }: DisplayContent): Draw {
 
     context.textAlign = 'center'
     context.fillStyle = '#F8FAFC'
-    context.font = `700 ${title.length > 18 ? 68 : 84}px ${FONT}`
+    setFittedFont(context, title, 700, 84, width - DISPLAY_MARGIN * 2)
     context.fillText(title, width / 2, 125)
-    context.fillStyle = HALL_COLORS.accent
-    context.font = `500 44px ${FONT}`
-    context.fillText(subtitle, width / 2, 190)
+    context.fillStyle = HALL_COLORS.accentLight
+    context.font = `500 60px ${FONT}`
+    context.fillText(subtitle, width / 2, 200)
 
-    context.strokeStyle = 'rgba(102, 213, 117, 0.85)'
-    context.fillStyle = 'rgba(102, 213, 117, 0.85)'
+    context.strokeStyle = HALL_COLORS.accentLight
+    context.fillStyle = HALL_COLORS.accentLight
+    context.globalAlpha = 0.85
     GRAPHICS[graphic](context, width, height)
   }
 }
+
+/** The event's name across a wide banner, with chevrons leading in from both ends. */
+export const getEventBannerTexture = once(() =>
+  createTexture(2048, 512, (context, width, height) => {
+    const middle = height / 2
+    const background = context.createLinearGradient(0, 0, width, 0)
+    background.addColorStop(0, '#090F1C')
+    background.addColorStop(0.5, '#0D2F4D')
+    background.addColorStop(1, '#090F1C')
+    context.fillStyle = background
+    context.fillRect(0, 0, width, height)
+
+    context.fillStyle = HALL_COLORS.accent
+    context.fillRect(0, 0, width, 12)
+    context.fillRect(0, height - 12, width, 12)
+
+    context.strokeStyle = HALL_COLORS.accentLight
+    context.lineWidth = 12
+    ;[0.25, 0.5, 1].forEach((opacity, index) => {
+      const x = 60 + index * 62
+      context.globalAlpha = opacity
+      for (const tip of [x, width - x]) {
+        const back = tip < width / 2 ? tip - 50 : tip + 50
+        context.beginPath()
+        context.moveTo(back, middle - 80)
+        context.lineTo(tip, middle)
+        context.lineTo(back, middle + 80)
+        context.stroke()
+      }
+    })
+    context.globalAlpha = 1
+
+    const name = 'FIT EXPO '
+    const year = '2026'
+    setFittedFont(context, name + year, 800, 210, width - 640)
+    const nameWidth = context.measureText(name).width
+    const left = (width - context.measureText(name + year).width) / 2
+    context.textAlign = 'left'
+    context.textBaseline = 'middle'
+    context.shadowColor = HALL_COLORS.accentGlow
+    context.shadowBlur = 36
+    context.fillStyle = '#F8FAFC'
+    context.fillText(name, left, middle)
+    context.fillStyle = HALL_COLORS.accentLight
+    context.fillText(year, left + nameWidth, middle)
+  }),
+)
 
 const displayTextures = new Map<string, CanvasTexture>()
 

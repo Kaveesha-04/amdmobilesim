@@ -25,7 +25,7 @@ export const HALL_MATERIALS = {
   secondaryAccent: new MeshBasicMaterial({ color: HALL_COLORS.secondaryAccent, toneMapped: false }),
   fixture: new MeshBasicMaterial({ color: HALL_COLORS.displayLight, toneMapped: false }),
   floorLine: new MeshBasicMaterial({ color: '#33475F', toneMapped: false }),
-  floorLineAccent: new MeshBasicMaterial({ color: '#4FA85C', toneMapped: false }),
+  floorLineAccent: new MeshBasicMaterial({ color: HALL_COLORS.accentDeep, toneMapped: false }),
 }
 
 /** A soft glow laid over a surface, for highlights that don't need a light. */

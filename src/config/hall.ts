@@ -24,7 +24,12 @@ export const BEAM_LINES = [-25, -15, -5, 5, 15, 25]
 export const HALL_COLORS = {
   environment: '#080D18',
   metal: '#1E293B',
-  accent: '#66D575',
+  accent: '#007FFF',
+  /** For text and fine graphics on the screens, where the primary azure is too dark to read well. */
+  accentLight: '#38BDF8',
+  /** For large or low-priority markings, which would glare in the primary azure. */
+  accentDeep: '#075985',
+  accentGlow: 'rgba(0, 127, 255, 0.35)',
   secondaryAccent: '#FF7556',
   displayLight: '#F4F1E8',
 }

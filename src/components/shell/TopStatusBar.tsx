@@ -47,7 +47,7 @@ export function TopStatusBar() {
         className="glass pointer-events-auto flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-4 py-2"
         data-shell-ui
       >
-        <h1 className="text-base font-semibold tracking-tight">MoonLady Beta 1</h1>
+        <h1 className="text-base font-semibold tracking-tight">Adaptable and Modular Drone</h1>
         <span className="text-sm font-medium text-accent" data-status-mode>
           {modeRegistry[activeMode].metadata.title}
         </span>
