@@ -18,7 +18,6 @@ export interface ArtificialRuntime {
   store: FlightStore
   inputs: InputController
   configuredReceiverUrl: string
-  calibrationError: string | null
   staleAfterMs: number
 }
 

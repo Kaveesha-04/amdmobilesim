@@ -1,3 +1,5 @@
+import type { TransmitterCalibration } from '../types/transmitter'
+
 export const TRANSMITTER_CONFIG = {
   /** Where the Signal Receiver runs. */
   receiverUrl: (import.meta.env.VITE_SIGNAL_RECEIVER_URL as string | undefined) ?? 'http://localhost:3000',
@@ -7,7 +9,7 @@ export const TRANSMITTER_CONFIG = {
   requestTimeoutMs: 1000,
   /**
    * With no new message from the ESP32 for this long, the signal counts as lost.
-   * The ESP32's real sending rate hasn't been measured, so check this against it.
+   * The ESP32 was measured sending about every 206 ms, with a worst gap of 617 ms.
    */
   staleAfterMs: 1000,
   /** A value further than this share of its range beyond min or max is invalid, not just imprecise. */
@@ -15,10 +17,14 @@ export const TRANSMITTER_CONFIG = {
 }
 
 /**
- * The calibration, as JSON, from the environment. See .env.example. There's
- * deliberately no default: the real transmitter's ranges haven't been measured,
- * and flying on a guess could send the virtual drone off at full stick.
+ * The team's shared transmitter, measured on 2026-11-05 and in raw transmitter units.
+ * Every laptop uses these same values. The stick directions (invert) are not yet
+ * confirmed by a real flight. Positive roll is right, positive pitch is forward and
+ * positive yaw is nose right.
  */
-export const TRANSMITTER_CALIBRATION_JSON = import.meta.env.VITE_TRANSMITTER_CALIBRATION as
-  | string
-  | undefined
+export const TRANSMITTER_CALIBRATION: TransmitterCalibration = {
+  throttle: { min: 1000, max: 2000, deadband: 2, invert: false },
+  roll: { min: -500, max: 500, center: 0, deadband: 5, invert: false },
+  pitch: { min: -500, max: 500, center: 0, deadband: 5, invert: false },
+  yaw: { min: -500, max: 500, center: 0, deadband: 5, invert: false },
+}

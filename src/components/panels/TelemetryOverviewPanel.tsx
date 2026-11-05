@@ -55,7 +55,7 @@ const percent = (value: number) => `${Math.round(value * 100)}%`
 const degrees = (value: number) => `${value.toFixed(1)}°`
 
 function ArtificialTelemetry({ runtime }: { runtime: ArtificialRuntime }) {
-  const { store, inputs, configuredReceiverUrl, calibrationError, staleAfterMs } = runtime
+  const { store, inputs, configuredReceiverUrl, staleAfterMs } = runtime
   const kind = useSyncExternalStore(inputs.subscribeToKind, inputs.getKind)
   const { attitude, controls } = useSyncExternalStore(store.subscribe, store.getSnapshot)
 
@@ -89,7 +89,6 @@ function ArtificialTelemetry({ runtime }: { runtime: ArtificialRuntime }) {
           source={inputs.transmitterSource}
           store={store}
           configuredUrl={configuredReceiverUrl}
-          calibrationError={calibrationError}
           staleAfterMs={staleAfterMs}
         />
       )}

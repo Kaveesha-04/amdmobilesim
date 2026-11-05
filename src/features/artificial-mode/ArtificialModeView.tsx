@@ -4,12 +4,11 @@ import { FlightDrone } from '../../components/simulator/FlightDrone'
 import { FollowCamera } from '../../components/simulator/FollowCamera'
 import { FLIGHT_CAMERA } from '../../config/camera'
 import { DRONE_START_POSITION, FLIGHT_KEY_MAP } from '../../config/flight'
-import { TRANSMITTER_CALIBRATION_JSON, TRANSMITTER_CONFIG } from '../../config/transmitter'
+import { TRANSMITTER_CALIBRATION, TRANSMITTER_CONFIG } from '../../config/transmitter'
 import { DEFAULT_FLIGHT_AREA } from '../../config/world'
 import { InputController } from '../../services/flightInput/InputController'
 import { KeyboardInputSource } from '../../services/flightInput/KeyboardInputSource'
 import { TransmitterInputSource } from '../../services/flightInput/TransmitterInputSource'
-import { parseCalibration } from '../../services/transmitter/calibration'
 import { loadSavedReceiverUrl } from '../../services/transmitter/receiverUrl'
 import { TransmitterService } from '../../services/transmitter/transmitterService'
 import { getCameraZoom } from '../../stores/cameraZoom'
@@ -18,8 +17,6 @@ import { useRegisterModeRuntime } from '../../hooks/useModeRuntime'
 import type { ArtificialRuntime } from '../../stores/ModeRuntimeContext'
 import { FlightReadout } from './FlightReadout'
 import { FlightSceneBadge } from './FlightSceneBadge'
-
-const { calibration, error: calibrationError } = parseCalibration(TRANSMITTER_CALIBRATION_JSON)
 
 export default function ArtificialModeView() {
   const [inputs] = useState(
@@ -31,8 +28,7 @@ export default function ArtificialModeView() {
             ...TRANSMITTER_CONFIG,
             receiverUrl: loadSavedReceiverUrl() ?? TRANSMITTER_CONFIG.receiverUrl,
           }),
-          calibration,
-          calibrationError,
+          TRANSMITTER_CALIBRATION,
         ),
       ),
   )
@@ -44,7 +40,6 @@ export default function ArtificialModeView() {
       store,
       inputs,
       configuredReceiverUrl: TRANSMITTER_CONFIG.receiverUrl,
-      calibrationError,
       staleAfterMs: TRANSMITTER_CONFIG.staleAfterMs,
     }),
     [store, inputs],
