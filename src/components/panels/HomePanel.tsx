@@ -2,6 +2,7 @@ import { modeRegistry } from '../../features/modeRegistry'
 import { useOperatingMode } from '../../hooks/useOperatingMode'
 import { usePanels } from '../../hooks/usePanels'
 import type { OperatingMode } from '../../types/mode'
+import { UnderDevelopmentBadge } from '../common/UnderDevelopmentBadge'
 import { PanelHeading, PanelText } from './PanelParts'
 
 const MODES: OperatingMode[] = ['natural', 'artificial']
@@ -29,7 +30,7 @@ export function HomePanel() {
       <div className="space-y-2">
         <PanelHeading>Get started</PanelHeading>
         {MODES.map((mode) => {
-          const { title, description } = modeRegistry[mode].metadata
+          const { title, description, underDevelopment } = modeRegistry[mode].metadata
           return (
             <button
               key={mode}
@@ -41,7 +42,10 @@ export function HomePanel() {
                 showPanel(mode)
               }}
             >
-              <span className="block font-semibold">{title}</span>
+              <span className="flex items-center gap-2 font-semibold">
+                {title}
+                {underDevelopment && <UnderDevelopmentBadge />}
+              </span>
               <span className="mt-0.5 block text-xs font-normal text-slate-300">{description}</span>
             </button>
           )

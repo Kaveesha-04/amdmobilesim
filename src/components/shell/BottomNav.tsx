@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
+import { modeRegistry } from '../../features/modeRegistry'
 import { useOperatingMode } from '../../hooks/useOperatingMode'
 import { usePanels } from '../../hooks/usePanels'
 import type { PanelId } from '../../stores/PanelContext'
+import { UnderDevelopmentBadge } from '../common/UnderDevelopmentBadge'
 import { ArtificialIcon, HelpIcon, HomeIcon, NaturalIcon, SettingsIcon, TelemetryIcon } from './Icons'
 
 const ITEMS: { id: PanelId; label: string; icon: ReactNode }[] = [
@@ -42,13 +44,16 @@ export function BottomNav() {
             type="button"
             aria-pressed={isOpen}
             data-nav={id}
-            className={`relative flex min-w-20 shrink-0 cursor-pointer flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-medium whitespace-nowrap transition duration-150 active:scale-95 ${
+            className={`relative flex min-w-20 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-medium whitespace-nowrap transition duration-150 active:scale-95 ${
               isOpen ? 'bg-accent/20 text-accent' : 'text-slate-300 hover:bg-white/10 hover:text-slate-50'
             }`}
             onClick={() => handleClick(id)}
           >
             {icon}
             {label}
+            {id === 'natural' && modeRegistry.natural.metadata.underDevelopment && (
+              <UnderDevelopmentBadge />
+            )}
             {isActiveMode && (
               <span
                 aria-label="Current mode"

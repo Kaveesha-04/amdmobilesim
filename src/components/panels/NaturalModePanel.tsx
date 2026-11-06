@@ -12,8 +12,9 @@ export function NaturalModePanel() {
     <>
       <p className="text-sm font-medium text-accent">Natural Mode is active</p>
       <PanelText>
-        The model mirrors the real drone's orientation. It stays at one fixed position in the
-        virtual world: only its roll, pitch and yaw change.
+        <strong className="font-semibold text-warn">Under development.</strong> It isn't connected
+        to a real drone yet. When finished, the model will mirror the real drone's orientation. It
+        stays at one fixed position in the virtual world: only its roll, pitch and yaw change.
       </PanelText>
       <TelemetryPanel
         store={runtime.store}

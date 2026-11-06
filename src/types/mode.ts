@@ -4,4 +4,5 @@ export interface ModeMetadata {
   id: OperatingMode
   title: string
   description: string
+  underDevelopment?: boolean
 }

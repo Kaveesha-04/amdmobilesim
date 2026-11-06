@@ -39,7 +39,7 @@ Open the address Vite prints, normally <http://localhost:5173>.
 
 ## The two modes
 
-The simulator opens in Natural Mode. Switch using the bottom menu or the Home panel.
+The simulator opens in Natural Mode, which is still under development. Switch using the bottom menu or the Home panel.
 
 | | Natural Mode | Artificial Mode |
 |---|---|---|
@@ -50,7 +50,7 @@ The simulator opens in Natural Mode. Switch using the bottom menu or the Home pa
 
 ## Natural Mode
 
-Natural Mode is designed to mirror the real drone's roll, pitch and yaw. **It isn't connected to a real drone yet**, because the drone's way of sending its orientation hasn't been confirmed.
+Natural Mode is under development, and the app labels it that way. It's designed to mirror the real drone's roll, pitch and yaw. **It isn't connected to a real drone yet**, because the drone's way of sending its orientation hasn't been confirmed.
 
 - **In development (`npm run dev`):** the model runs on simulated data, and the app labels it as simulated.
 - **In a production build:** there is no data source, so the app reports that no telemetry source is configured.
@@ -110,7 +110,7 @@ Arming is refused if the throttle is above 5% or the drone is in the air, so it 
 
 In the Artificial Mode panel, choose **Motor Monitor** to see each of the four motors' output, estimated RPM and running status. A motor at 85% output or more is shown as near its limit.
 
-In the 3D view, a small display beside each motor shows its live output as a bar and a percentage. These move with the drone, and appear only in Artificial Mode, because Natural Mode has no measured motor speeds. Turn them on or off with **Speed indicators on drone** in the Motor Monitor.
+In the 3D view, a small display beside each motor shows its live output as a bar and a percentage. These move with the drone, and appear only in Artificial Mode, because Natural Mode has no measured motor speeds. They're off each time the app starts. Turn them on or off with **Speed indicators on drone** in the Motor Monitor.
 
 The RPM is illustrative: output (0 to 1) × 12,000. It isn't measured from the real motors.
 

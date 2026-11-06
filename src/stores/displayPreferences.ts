@@ -13,7 +13,7 @@ const DEFAULTS: DisplayPreferences = {
   graphicsQuality: 'high',
   reduceGlass: false,
   showFlightReadout: true,
-  showMotorIndicators: true,
+  showMotorIndicators: false,
 }
 
 function load(): DisplayPreferences {
@@ -25,7 +25,8 @@ function load(): DisplayPreferences {
         : DEFAULTS.graphicsQuality,
       reduceGlass: saved.reduceGlass === true,
       showFlightReadout: saved.showFlightReadout !== false,
-      showMotorIndicators: saved.showMotorIndicators !== false,
+      // Off at every start, so a saved choice is deliberately not restored.
+      showMotorIndicators: DEFAULTS.showMotorIndicators,
     }
   } catch {
     return DEFAULTS

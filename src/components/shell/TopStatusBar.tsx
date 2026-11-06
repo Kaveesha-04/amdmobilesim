@@ -6,6 +6,7 @@ import { useFullscreen } from '../../hooks/useFullscreen'
 import { useModeRuntime } from '../../hooks/useModeRuntime'
 import { useOperatingMode } from '../../hooks/useOperatingMode'
 import type { ArtificialRuntime, NaturalRuntime } from '../../stores/ModeRuntimeContext'
+import { UnderDevelopmentBadge } from '../common/UnderDevelopmentBadge'
 import { EnterFullscreenIcon, ExitFullscreenIcon } from './Icons'
 
 function Connection({ label, dotClass }: { label: string; dotClass: string | null }) {
@@ -51,6 +52,7 @@ export function TopStatusBar() {
         <span className="text-sm font-medium text-accent" data-status-mode>
           {modeRegistry[activeMode].metadata.title}
         </span>
+        {modeRegistry[activeMode].metadata.underDevelopment && <UnderDevelopmentBadge />}
         {runtime?.mode === 'natural' && <NaturalConnection runtime={runtime} />}
         {runtime?.mode === 'artificial' && <ArtificialConnection runtime={runtime} />}
       </div>
