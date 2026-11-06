@@ -69,16 +69,6 @@ export const PROPELLERS = [
   { name: 'Propeller_RR', motor: 4, position: 'Rear Right', side: 1, end: 1, direction: -1, rollMix: -1, pitchMix: 1, yawMix: -1 },
 ] as const
 
-/**
- * The estimated RPM shown at full virtual motor output: RPM = output (0 to 1) x this.
- * It only sets the scale of the Motor Monitor, and changes nothing in the simulation.
- * It is an illustrative figure, not measured from or specified for the real motors.
- */
-export const VIRTUAL_MOTOR_MAX_RPM = 12000
-
-/** At or above this output, the Motor Monitor shows a motor as near its limit. */
-export const MOTOR_HIGH_OUTPUT = 0.85
-
 /** The on-screen speed at full motor output, slow enough not to strobe at 60 frames a second. */
 export const PROPELLER_MAX_RADIANS_PER_SECOND = 70
 
@@ -100,8 +90,17 @@ export const FLIGHT_KEY_MAP = {
 
 export type FlightKeyMap = typeof FLIGHT_KEY_MAP
 
-/** How long it takes to move the throttle from zero to full while holding its key. */
-export const KEYBOARD_THROTTLE_FULL_RANGE_SECONDS = 2.5
+/** How long it takes to move the throttle from zero to full with its key or stick held fully. */
+export const THROTTLE_FULL_RANGE_SECONDS = 2.5
+
+export const TOUCH_STICK = {
+  /** Around the centre, as a share of the stick's travel, where nothing happens. */
+  deadZone: 0.1,
+  /** Above 1, small movements do less, which makes fine control easier on a small screen. */
+  expo: 1.6,
+  /** How far the knob's centre moves, as a share of the base's radius. */
+  knobTravel: 0.6,
+}
 
 export const FOLLOW_CAMERA = {
   /** How far behind the drone's heading the camera sits. */

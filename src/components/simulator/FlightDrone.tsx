@@ -29,7 +29,7 @@ export function FlightDrone({ store }: { store: FlightStore }) {
     propellers.current = found
 
     return () => {
-      // The loaded model is shared with Natural Mode, so leave it as it was found.
+      // The loaded model is cached and shared, so leave it as it was found.
       found.forEach((propeller) => propeller?.rotation.set(0, 0, 0))
     }
   }, [])

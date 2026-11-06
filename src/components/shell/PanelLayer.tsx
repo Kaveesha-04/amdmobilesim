@@ -1,29 +1,16 @@
-import { useEffect, useState, type ComponentType } from 'react'
+import { useEffect, useState } from 'react'
 import { usePanels } from '../../hooks/usePanels'
-import type { PanelId } from '../../stores/PanelContext'
-import { ArtificialModePanel } from '../panels/ArtificialModePanel'
+import type { FlightStore } from '../../stores/flightStore'
 import { HelpPanel } from '../panels/HelpPanel'
-import { HomePanel } from '../panels/HomePanel'
-import { NaturalModePanel } from '../panels/NaturalModePanel'
 import { SettingsPanel } from '../panels/SettingsPanel'
-import { TelemetryOverviewPanel } from '../panels/TelemetryOverviewPanel'
 import { FloatingPanel } from './FloatingPanel'
-
-const PANELS: Record<PanelId, { title: string; Content: ComponentType }> = {
-  home: { title: 'Home', Content: HomePanel },
-  natural: { title: 'Natural Mode', Content: NaturalModePanel },
-  artificial: { title: 'Artificial Mode', Content: ArtificialModePanel },
-  telemetry: { title: 'Telemetry', Content: TelemetryOverviewPanel },
-  settings: { title: 'Settings', Content: SettingsPanel },
-  help: { title: 'Help', Content: HelpPanel },
-}
 
 /** Matches the length of the exit animation in index.css. */
 const EXIT_MS = 170
 /** A press that moves further than this is a camera drag rather than a click. */
 const CLICK_SLOP_PIXELS = 6
 
-export function PanelLayer() {
+export function PanelLayer({ store }: { store: FlightStore }) {
   const { openPanel, closePanel } = usePanels()
 
   // Stays set for a moment after closing, so that the panel can animate out.
@@ -75,11 +62,14 @@ export function PanelLayer() {
 
   if (!shownPanel) return null
 
-  const { title, Content } = PANELS[shownPanel]
-
   return (
-    <FloatingPanel key={shownPanel} title={title} isClosing={isClosing} onClose={closePanel}>
-      <Content />
+    <FloatingPanel
+      key={shownPanel}
+      title={shownPanel === 'settings' ? 'Settings' : 'Help'}
+      isClosing={isClosing}
+      onClose={closePanel}
+    >
+      {shownPanel === 'settings' ? <SettingsPanel store={store} /> : <HelpPanel />}
     </FloatingPanel>
   )
 }

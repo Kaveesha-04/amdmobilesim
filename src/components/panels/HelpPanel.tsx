@@ -1,62 +1,45 @@
-import { useSyncExternalStore } from 'react'
-import { COMMAND_KEYS, FLIGHT_KEYS } from '../../features/artificial-mode/controlsGuide'
-import { useModeRuntime } from '../../hooks/useModeRuntime'
-import type { ArtificialRuntime } from '../../stores/ModeRuntimeContext'
-import { KeyList, PanelHeading, PanelText, PreparingMode } from './PanelParts'
+import { KeyList, PanelHeading, PanelText } from './PanelParts'
 
-function ArtificialHelp({ runtime }: { runtime: ArtificialRuntime }) {
-  const { inputs } = runtime
-  const kind = useSyncExternalStore(inputs.subscribeToKind, inputs.getKind)
+const STICKS = [
+  ['Left, up / down', 'Climb / descend'],
+  ['Left, sideways', 'Turn left / right'],
+  ['Right, up / down', 'Fly forward / back'],
+  ['Right, sideways', 'Fly left / right'],
+]
 
-  return kind === 'keyboard' ? (
-    <section className="space-y-2" data-help="keyboard">
-      <PanelHeading>Fly with the keyboard</PanelHeading>
-      <PanelText>
-        Press Enter to arm, then hold ↑ to take off. The drone hovers at about half throttle. Lower
-        the throttle to land.
-      </PanelText>
-      <KeyList keys={[...FLIGHT_KEYS, ...COMMAND_KEYS]} />
-    </section>
-  ) : (
-    <section className="space-y-2" data-help="transmitter">
-      <PanelHeading>Fly with the transmitter</PanelHeading>
-      <PanelText>
-        Lower the throttle stick, press Enter to arm, then raise the throttle to take off. If the
-        signal drops, the virtual motors stop and the drone has to be armed again.
-      </PanelText>
-      <KeyList keys={COMMAND_KEYS} />
-    </section>
-  )
-}
+const KEYS = [
+  ['W / S', 'Fly forward / back'],
+  ['A / D', 'Fly left / right'],
+  ['Q / E', 'Turn left / right'],
+  ['↑ / ↓', 'Climb / descend'],
+  ['Enter', 'Start motors'],
+  ['Space', 'Stop motors'],
+  ['R', 'Reset'],
+  ['C', 'Switch camera'],
+]
 
 export function HelpPanel() {
-  const runtime = useModeRuntime()
-
   return (
     <>
-      {!runtime && <PreparingMode />}
-      {runtime?.mode === 'natural' && (
-        <section className="space-y-2" data-help="natural">
-          <PanelHeading>Natural Mode</PanelHeading>
-          <PanelText>
-            The model follows the real drone's orientation and stays in place. Drag the scene to
-            look around, and scroll to zoom. Choose Artificial Mode to fly a virtual drone.
-          </PanelText>
-        </section>
-      )}
-      {runtime?.mode === 'artificial' && <ArtificialHelp runtime={runtime} />}
-      <section className="space-y-2">
-        <PanelHeading>Using the menu</PanelHeading>
+      <section className="space-y-2" data-help="flying">
+        <PanelHeading>Your first flight</PanelHeading>
         <PanelText>
-          Choose an item at the bottom of the screen to open its panel. Choose it again, press Esc
-          or click the scene to close it. The simulation keeps running behind panels.
+          Tap Start, then hold the left stick up to raise the throttle until the drone lifts off.
+          Let go and the throttle stays where it is. The drone hovers at about half throttle, marked
+          by the line on the bar beside the stick. Lower the throttle to land.
         </PanelText>
+        <PanelText>Stop turns the motors off at once, and in the air the drone falls.</PanelText>
+        <KeyList keys={STICKS} />
+      </section>
+      <section className="space-y-2" data-help="keyboard">
+        <PanelHeading>With a keyboard</PanelHeading>
+        <KeyList keys={KEYS} />
       </section>
       <section className="space-y-2" data-help="zoom">
-        <PanelHeading>Looking closer</PanelHeading>
+        <PanelHeading>Looking around</PanelHeading>
         <PanelText>
-          Use the zoom bar above the menu, or scroll over the scene, to move closer to the drone or
-          further away.
+          Use + and − to move closer or further away, and tap the percentage to reset. In Free view,
+          drag the scene to look around.
         </PanelText>
       </section>
       <section className="space-y-2" data-help="safety">

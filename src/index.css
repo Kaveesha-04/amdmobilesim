@@ -18,8 +18,30 @@ body,
   overflow: hidden;
 }
 
+/*
+ * Fixed in place, and with the browser's own gestures off, so that dragging a stick
+ * can't scroll or zoom the page, or bring up the text selection menu.
+ */
 body {
   @apply bg-surface text-slate-50 antialiased;
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --safe-top: max(0.5rem, env(safe-area-inset-top));
+  --safe-right: max(0.5rem, env(safe-area-inset-right));
+  --safe-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  --safe-left: max(0.5rem, env(safe-area-inset-left));
+  /* In px and vmin, as the rem scale is for reading rather than for the size of a thumb. */
+  --stick-size: clamp(108px, 33vmin, 170px);
 }
 
 @layer components {
@@ -43,62 +65,137 @@ body {
     @apply cursor-pointer rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium transition-colors duration-150 hover:border-white/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-white/15 disabled:hover:bg-white/5;
   }
 
-  /* --zoom-fill is set by the zoom control, and colours the track up to the thumb. */
-  .zoom-slider {
-    @apply h-8 cursor-pointer appearance-none bg-transparent;
+  .top-status-bar {
+    top: var(--safe-top);
+    left: var(--safe-left);
+    right: var(--safe-right);
+  }
+
+  .top-bar-button {
+    @apply pointer-events-auto flex h-[42px] cursor-pointer items-center justify-center rounded-xl transition-colors duration-150 hover:text-accent;
+  }
+
+  .camera-zoom {
+    position: absolute;
+    top: calc(var(--safe-top) + 3.75rem);
+    right: var(--safe-right);
+    flex-direction: column;
+  }
+
+  .floating-panel {
+    top: calc(var(--safe-top) + 3.5rem);
+    right: var(--safe-right);
+    width: min(24rem, calc(100% - var(--safe-left) - var(--safe-right)));
+    max-height: calc(100% - var(--safe-top) - 3.5rem - var(--safe-bottom));
+  }
+
+  /* The body turns the browser's gestures off, so scrolling has to be allowed again here. */
+  .panel-scroller {
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+
+  .flight-controls {
+    @apply pointer-events-none absolute inset-0;
+  }
+
+  .flight-stick-left,
+  .flight-stick-right {
+    position: absolute;
+    bottom: var(--safe-bottom);
+    @apply flex flex-col items-center gap-1;
+  }
+
+  .flight-stick-left {
+    left: var(--safe-left);
+  }
+
+  .flight-stick-right {
+    right: var(--safe-right);
+  }
+
+  .flight-stick-caption {
+    @apply text-xs font-medium text-slate-200;
+    text-shadow: 0 1px 4px rgb(2 6 23);
+  }
+
+  /* A little larger than the base it holds, so that a thumb landing just outside it still counts. */
+  .virtual-stick {
+    @apply pointer-events-auto relative;
+    padding: 0.75rem 1.25rem 0.25rem;
     touch-action: none;
   }
 
-  .zoom-slider::-webkit-slider-runnable-track {
-    height: 0.25rem;
-    border-radius: 999px;
-    background: linear-gradient(
-      to right,
-      var(--color-accent) var(--zoom-fill),
-      rgba(255, 255, 255, 0.2) var(--zoom-fill)
-    );
+  .virtual-stick-base {
+    @apply relative flex items-center justify-center rounded-full border-2 border-white/25;
+    width: var(--stick-size);
+    height: var(--stick-size);
+    background: rgba(15, 23, 42, 0.5);
   }
 
-  .zoom-slider::-moz-range-track {
-    height: 0.25rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.2);
+  .virtual-stick-knob {
+    @apply rounded-full border-2 border-accent/80;
+    width: 42%;
+    height: 42%;
+    background: rgba(226, 232, 240, 0.28);
+    box-shadow: 0 2px 10px rgba(2, 6, 23, 0.6);
   }
 
-  .zoom-slider::-moz-range-progress {
-    height: 0.25rem;
-    border-radius: 999px;
-    background: var(--color-accent);
+  .throttle-gauge {
+    @apply pointer-events-none absolute right-0.5 overflow-hidden rounded-full bg-white/15;
+    bottom: 0.25rem;
+    width: 0.5rem;
+    height: var(--stick-size);
   }
 
-  .zoom-slider::-webkit-slider-thumb {
-    @apply appearance-none rounded-full border-2 border-accent bg-slate-50 transition-transform duration-150;
-    width: 1rem;
-    height: 1rem;
-    margin-top: -0.375rem;
-    box-shadow: 0 2px 8px rgba(2, 6, 23, 0.6);
+  .throttle-gauge-fill {
+    @apply absolute inset-x-0 bottom-0 bg-accent;
   }
 
-  .zoom-slider::-moz-range-thumb {
-    @apply rounded-full border-2 border-accent bg-slate-50 transition-transform duration-150;
-    width: 1rem;
-    height: 1rem;
-    box-sizing: border-box;
-    box-shadow: 0 2px 8px rgba(2, 6, 23, 0.6);
+  .throttle-gauge-hover {
+    @apply absolute inset-x-0 h-0.5 bg-slate-50;
+    bottom: calc(50% - 1px);
   }
 
-  .zoom-slider:hover::-webkit-slider-thumb,
-  .zoom-slider:focus-visible::-webkit-slider-thumb {
-    transform: scale(1.2);
+  /* Between the sticks when there's room for it, and above them on a narrow screen. */
+  .flight-actions {
+    position: absolute;
+    left: 50%;
+    bottom: var(--safe-bottom);
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 100%;
+    @apply pointer-events-auto flex flex-col items-center gap-2;
   }
 
-  .zoom-slider:hover::-moz-range-thumb,
-  .zoom-slider:focus-visible::-moz-range-thumb {
-    transform: scale(1.2);
+  .flight-action-main {
+    @apply h-14 w-36 cursor-pointer rounded-2xl text-lg font-bold shadow-lg transition-transform duration-100 active:scale-95;
+    touch-action: none;
   }
 
-  .zoom-slider:focus-visible {
-    outline: none;
+  .flight-action-small {
+    @apply h-[42px] cursor-pointer rounded-xl px-3 text-sm font-medium transition-colors duration-150 hover:text-accent;
+    touch-action: none;
+  }
+
+  @media (orientation: portrait) {
+    .flight-actions {
+      bottom: calc(var(--safe-bottom) + var(--stick-size) + 2.5rem);
+    }
+  }
+
+  /* A short landscape phone has little room between the bar at the top and the sticks. */
+  @media (max-height: 400px) {
+    .flight-action-main {
+      @apply h-12;
+    }
+  }
+
+  /* Too short for a column between the bar at the top and the right stick. */
+  @media (max-height: 360px) {
+    .camera-zoom {
+      flex-direction: row;
+    }
   }
 
   .panel-enter {
@@ -128,11 +225,6 @@ body {
 html[data-reduce-glass] .glass {
   background: rgba(15, 23, 42, 0.94);
   backdrop-filter: none;
-}
-
-html[data-reduce-glass] [data-motor-gauge],
-html[data-reduce-glass] [data-layout-intensity] {
-  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

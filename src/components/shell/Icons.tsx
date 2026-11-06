@@ -17,31 +17,6 @@ function Icon({ children, className = 'size-5' }: { children: ReactNode; classNa
   )
 }
 
-export const HomeIcon = () => (
-  <Icon>
-    <path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />
-  </Icon>
-)
-export const NaturalIcon = () => (
-  <Icon>
-    <circle cx="12" cy="12" r="8" />
-    <path d="M4 12c3 2.5 13 2.5 16 0M12 4v16" />
-  </Icon>
-)
-export const ArtificialIcon = () => (
-  <Icon>
-    <circle cx="5.5" cy="5.5" r="2.5" />
-    <circle cx="18.5" cy="5.5" r="2.5" />
-    <circle cx="5.5" cy="18.5" r="2.5" />
-    <circle cx="18.5" cy="18.5" r="2.5" />
-    <path d="M7.5 7.5l9 9M16.5 7.5l-9 9" />
-  </Icon>
-)
-export const TelemetryIcon = () => (
-  <Icon>
-    <path d="M3 12h4l3-7 4 14 3-7h4" />
-  </Icon>
-)
 export const SettingsIcon = () => (
   <Icon>
     <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
@@ -78,10 +53,5 @@ export const MinusIcon = () => (
 export const PlusIcon = () => (
   <Icon className="size-4">
     <path d="M5 12h14M12 5v14" />
-  </Icon>
-)
-export const ResetIcon = () => (
-  <Icon className="size-4">
-    <path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5" />
   </Icon>
 )

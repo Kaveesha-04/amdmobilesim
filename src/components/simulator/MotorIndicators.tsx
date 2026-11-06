@@ -290,8 +290,7 @@ function MotorIndicator({ store, index }: MotorIndicatorProps) {
 
 /**
  * A small display beside each motor showing the output the simulation works out for
- * it. Put this inside the group that carries the drone. It's only used in Artificial
- * Mode, as Natural Mode has no measured motor speeds to show.
+ * it. Put this inside the group that carries the drone.
  */
 export function MotorIndicators({ store }: { store: FlightStore }) {
   const { showMotorIndicators } = useDisplayPreferences()

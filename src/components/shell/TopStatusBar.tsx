@@ -1,72 +1,113 @@
-import { useSyncExternalStore } from 'react'
-import { HEALTH_DISPLAY as TRANSMITTER_HEALTH } from '../../features/artificial-mode/TransmitterPanel'
-import { modeRegistry } from '../../features/modeRegistry'
-import { HEALTH_DISPLAY as TELEMETRY_HEALTH } from '../../features/natural-mode/telemetryDisplay'
+import { useSyncExternalStore, type ReactNode } from 'react'
+import { useDisplayPreferences } from '../../hooks/useDisplayPreferences'
 import { useFullscreen } from '../../hooks/useFullscreen'
-import { useModeRuntime } from '../../hooks/useModeRuntime'
-import { useOperatingMode } from '../../hooks/useOperatingMode'
-import type { ArtificialRuntime, NaturalRuntime } from '../../stores/ModeRuntimeContext'
-import { EnterFullscreenIcon, ExitFullscreenIcon } from './Icons'
+import { usePanels } from '../../hooks/usePanels'
+import { setDisplayPreferences } from '../../stores/displayPreferences'
+import type { FlightStore } from '../../stores/flightStore'
+import type { PanelId } from '../../stores/PanelContext'
+import type { FlightMode } from '../../types/flight'
+import { EnterFullscreenIcon, ExitFullscreenIcon, HelpIcon, SettingsIcon } from './Icons'
 
-function Connection({ label, dotClass }: { label: string; dotClass: string | null }) {
+const MODE_DISPLAY: Record<FlightMode, { label: string; dotClass: string }> = {
+  DISARMED: { label: 'Motors off', dotClass: 'bg-slate-500' },
+  ARMED: { label: 'Armed', dotClass: 'bg-warn' },
+  FLYING: { label: 'Flying', dotClass: 'bg-emerald-400' },
+  LANDING: { label: 'Landing', dotClass: 'bg-sky-400' },
+}
+
+function FlightStatus({ store }: { store: FlightStore }) {
+  const { mode, altitude, horizontalSpeed } = useSyncExternalStore(store.subscribe, store.getSnapshot)
+  const { label, dotClass } = MODE_DISPLAY[mode]
+
   return (
-    <span className="flex items-center gap-2 text-sm text-slate-300" data-status-connection>
-      {dotClass && <span aria-hidden="true" className={`size-2 rounded-full ${dotClass}`} />}
-      {label}
-    </span>
+    <div className="glass pointer-events-auto rounded-2xl px-3 py-1.5" data-shell-ui data-flight-mode={mode}>
+      <p className="flex items-center gap-2 text-sm font-semibold" role="status">
+        <span aria-hidden="true" className={`size-2 rounded-full ${dotClass}`} />
+        {label}
+      </p>
+      <p className="text-xs text-slate-300 tabular-nums" data-flight-readout>
+        {altitude.toFixed(1)} m · {horizontalSpeed.toFixed(1)} m/s
+      </p>
+    </div>
   )
 }
 
-function NaturalConnection({ runtime }: { runtime: NaturalRuntime }) {
-  const { health } = useSyncExternalStore(runtime.store.subscribe, runtime.store.getState)
-  const { label, dotClass } = TELEMETRY_HEALTH[health]
-  return <Connection label={runtime.isSimulated ? `Simulated data: ${label}` : label} dotClass={dotClass} />
+/** Turns the speed indicators drawn on the drone on or off. */
+function MotorIndicatorSwitch() {
+  const { showMotorIndicators } = useDisplayPreferences()
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={showMotorIndicators}
+      aria-label="Motor indicators"
+      className="glass top-bar-button gap-2 px-3 text-sm font-medium"
+      data-motor-indicators-toggle
+      onClick={() => setDisplayPreferences({ showMotorIndicators: !showMotorIndicators })}
+    >
+      Motors
+      <span
+        aria-hidden="true"
+        className={`relative h-5 w-9 rounded-full transition-colors duration-150 ${showMotorIndicators ? 'bg-accent' : 'bg-white/20'}`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-slate-50 transition-transform duration-150 ${showMotorIndicators ? 'translate-x-4' : ''}`}
+        />
+      </span>
+    </button>
+  )
 }
 
-function ArtificialConnection({ runtime }: { runtime: ArtificialRuntime }) {
-  const { inputs } = runtime
-  const kind = useSyncExternalStore(inputs.subscribeToKind, inputs.getKind)
-  const source = inputs.transmitterSource
-  const { health } = useSyncExternalStore(source.subscribeToStatus, source.getStatus)
+function PanelButton({ panel, label, children }: { panel: PanelId; label: string; children: ReactNode }) {
+  const { openPanel, togglePanel } = usePanels()
 
-  // The keyboard has no link to report, so no indicator is shown that could suggest one.
-  if (kind === 'keyboard') return <Connection label="Keyboard input" dotClass={null} />
-
-  const { label, dotClass } = TRANSMITTER_HEALTH[health]
-  return <Connection label={`Transmitter: ${label}`} dotClass={dotClass} />
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={openPanel === panel}
+      className="glass top-bar-button w-[42px] aria-pressed:text-accent"
+      data-nav={panel}
+      onClick={() => togglePanel(panel)}
+    >
+      {children}
+    </button>
+  )
 }
 
-export function TopStatusBar() {
-  const { activeMode } = useOperatingMode()
-  const runtime = useModeRuntime()
+export function TopStatusBar({ store }: { store: FlightStore }) {
   const { isSupported, isFullscreen, toggleFullscreen } = useFullscreen()
 
   return (
-    <header className="pointer-events-none absolute inset-x-4 top-4 flex items-start justify-between gap-3">
-      <div
-        className="glass pointer-events-auto flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-4 py-2"
-        data-shell-ui
-      >
-        <h1 className="text-base font-semibold tracking-tight">Adaptable and Modular Drone</h1>
-        <span className="text-sm font-medium text-accent" data-status-mode>
-          {modeRegistry[activeMode].metadata.title}
-        </span>
-        {runtime?.mode === 'natural' && <NaturalConnection runtime={runtime} />}
-        {runtime?.mode === 'artificial' && <ArtificialConnection runtime={runtime} />}
+    <header className="top-status-bar pointer-events-none absolute flex items-start justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-3">
+        <FlightStatus store={store} />
+        <h1 className="hidden text-base font-semibold tracking-tight [text-shadow:0_1px_6px_rgb(2_6_23)] lg:block">
+          Adaptable and Modular Drone
+        </h1>
       </div>
-      {isSupported && (
-        <button
-          type="button"
-          className="glass pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors hover:text-accent"
-          data-shell-ui
-          data-fullscreen-button
-          aria-pressed={isFullscreen}
-          onClick={() => void toggleFullscreen()}
-        >
-          {isFullscreen ? <ExitFullscreenIcon /> : <EnterFullscreenIcon />}
-          {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-        </button>
-      )}
+      <div className="flex shrink-0 items-center gap-1.5" data-shell-ui>
+        <MotorIndicatorSwitch />
+        <PanelButton panel="settings" label="Settings">
+          <SettingsIcon />
+        </PanelButton>
+        <PanelButton panel="help" label="Help">
+          <HelpIcon />
+        </PanelButton>
+        {isSupported && (
+          <button
+            type="button"
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            aria-pressed={isFullscreen}
+            className="glass top-bar-button w-[42px]"
+            data-fullscreen-button
+            onClick={() => void toggleFullscreen()}
+          >
+            {isFullscreen ? <ExitFullscreenIcon /> : <EnterFullscreenIcon />}
+          </button>
+        )}
+      </div>
     </header>
   )
 }

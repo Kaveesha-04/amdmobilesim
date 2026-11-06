@@ -1,8 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 import { DRONE_GROUND_Y, DRONE_SIZE, DRONE_START_POSITION, FLIGHT_CONTROL, FLIGHT_PHYSICS } from '../config/flight'
 import { GROUND_HEIGHT, type FlightArea } from '../config/world'
-import type { Attitude } from '../types/telemetry'
-import type { FlightSetpoint } from '../types/flight'
+import type { Attitude, FlightSetpoint } from '../types/flight'
 import { bodyAttitudeToQuaternion, normalizeDegrees } from '../utils/orientation'
 
 /** The only place the drone's position and rotation are worked out. */

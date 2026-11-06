@@ -17,8 +17,7 @@ const NO_CONTROLS: FlightControls = { throttle: 0, roll: 0, pitch: 0, yaw: 0 }
 
 /**
  * Holds the simulation and runs input, flight controller and physics in order.
- * All of it is local to Artificial Mode and advances only when the 3D scene asks,
- * so it stops when the mode's view unmounts. It lives outside React so that the
+ * All of it advances only when the 3D scene asks. It lives outside React so that the
  * scene and the physics don't cause a re-render at the frame rate.
  *
  * No part of this reaches hardware: the motors here are numbers for the animation.
@@ -133,11 +132,6 @@ export class FlightStore {
     )
   }
 
-  /** Changing device in flight would hand the drone to whatever the new one happens to be set at. */
-  canChangeInput() {
-    return this.mode === 'DISARMED' && this.drone.isGrounded
-  }
-
   getCameraMode = () => this.cameraMode
 
   /** The drone's heading in degrees, for placing the follow camera. */
@@ -164,6 +158,8 @@ export class FlightStore {
     this.previousPosition.copy(this.drone.position)
     this.previousQuaternion.copy(this.drone.quaternion)
 
+    // Pushing the stick before starting must not leave the throttle high enough to refuse arming.
+    if (this.mode === 'DISARMED') this.source.resetThrottle()
     this.controls = this.source.read(deltaSeconds)
     const setpoint = computeSetpoint(this.controls, this.mode, this.drone)
     stepPhysics(this.drone, setpoint, this.area, deltaSeconds)
@@ -184,30 +180,9 @@ export class FlightStore {
   private arm() {
     if (this.mode !== 'DISARMED') return
     // Read afresh, because an idle scene hasn't been stepping the input.
-    const fault = this.source.getFault()
-    const block = fault ? `Cannot arm: ${fault}.` : armingBlock(this.source.read(0), this.drone)
+    const block = armingBlock(this.source.read(0), this.drone)
     this.message = block
     if (!block) this.mode = 'ARMED'
-  }
-
-  /**
-   * The failsafe: a device that can't be trusted loses control at once. The drone
-   * stays disarmed when the device recovers, until someone arms it again.
-   */
-  private checkForFault() {
-    const fault = this.source.getFault()
-
-    if (fault && this.mode !== 'DISARMED') {
-      this.mode = 'DISARMED'
-      this.source.resetThrottle()
-      this.controls = NO_CONTROLS
-      this.message = `Failsafe: ${fault}. Motors off. Arm again when the signal is back.`
-    }
-
-    if (fault !== this.snapshot.inputFault) {
-      if (!fault) this.controls = this.source.read(0)
-      this.publish()
-    }
   }
 
   /** Also the emergency stop: thrust ends at once, and in the air the drone falls. */
@@ -245,14 +220,9 @@ export class FlightStore {
       controls: this.controls,
       altitude: position.y - DRONE_GROUND_Y,
       horizontalSpeed: Math.hypot(velocity.x, velocity.z),
-      verticalSpeed: velocity.y,
-      position: { x: position.x, y: position.y, z: position.z },
-      attitude: { ...this.drone.attitude },
-      motorOutputs: [...this.motors],
       isAtBoundary,
       cameraMode: this.cameraMode,
       message: this.message,
-      inputFault: this.source.getFault(),
     }
   }
 
@@ -270,7 +240,6 @@ export class FlightStore {
     if (event.type === 'command') {
       this.command(event.command)
     } else {
-      this.checkForFault()
       this.wake()
     }
   }

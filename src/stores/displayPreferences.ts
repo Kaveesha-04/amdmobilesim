@@ -3,32 +3,33 @@ export type GraphicsQuality = 'high' | 'balanced' | 'performance'
 export interface DisplayPreferences {
   graphicsQuality: GraphicsQuality
   reduceGlass: boolean
-  showFlightReadout: boolean
   showMotorIndicators: boolean
 }
 
 const STORAGE_KEY = 'moonlady.displayPreferences'
 
-const DEFAULTS: DisplayPreferences = {
-  graphicsQuality: 'high',
-  reduceGlass: false,
-  showFlightReadout: true,
-  showMotorIndicators: true,
-}
+/** A touch screen usually means a phone or tablet, which starts at a resolution it can keep up with. */
+const defaultQuality = (): GraphicsQuality =>
+  window.matchMedia('(pointer: coarse)').matches ? 'balanced' : 'high'
 
 function load(): DisplayPreferences {
+  const defaults: DisplayPreferences = {
+    graphicsQuality: defaultQuality(),
+    reduceGlass: false,
+    showMotorIndicators: true,
+  }
+
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<DisplayPreferences>
     return {
       graphicsQuality: ['high', 'balanced', 'performance'].includes(saved.graphicsQuality as string)
         ? (saved.graphicsQuality as GraphicsQuality)
-        : DEFAULTS.graphicsQuality,
+        : defaults.graphicsQuality,
       reduceGlass: saved.reduceGlass === true,
-      showFlightReadout: saved.showFlightReadout !== false,
       showMotorIndicators: saved.showMotorIndicators !== false,
     }
   } catch {
-    return DEFAULTS
+    return defaults
   }
 }
 

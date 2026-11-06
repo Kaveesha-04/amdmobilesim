@@ -1,10 +1,5 @@
 import type { ReactNode } from 'react'
 
-/** Shown for a moment while a newly chosen mode's view is loading. */
-export function PreparingMode() {
-  return <p className="text-sm text-slate-400">Preparing this mode…</p>
-}
-
 export function PanelText({ children }: { children: ReactNode }) {
   return <p className="text-sm leading-relaxed text-slate-300">{children}</p>
 }

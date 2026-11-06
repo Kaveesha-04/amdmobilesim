@@ -8,9 +8,8 @@ const SEGMENTS = 96
 const LAYER_GAP = 0.004
 
 /**
- * The centre stays at floor level. Natural Mode's drone can take any attitude at its
- * fixed position, which brings its propeller tips almost to the floor, and they sweep
- * a radius of 0.352 m. The steps start outside that, so nothing can touch them.
+ * The centre stays at floor level. The propeller tips sweep a radius of 0.352 m, and
+ * the steps start outside that, so nothing can touch them.
  */
 const CENTRE_RADIUS = 0.45
 const TIERS = [

@@ -2,7 +2,14 @@ export type FlightMode = 'DISARMED' | 'ARMED' | 'FLYING' | 'LANDING'
 
 export type CameraMode = 'follow' | 'free'
 
-/** The four control channels, whatever device they come from. */
+/** Orientation in degrees. The sign of each angle is described in utils/orientation.ts. */
+export interface Attitude {
+  roll: number
+  pitch: number
+  yaw: number
+}
+
+/** The four control channels. */
 export interface FlightControls {
   /** 0 to 1. */
   throttle: number
@@ -32,17 +39,9 @@ export interface FlightSnapshot {
   /** Height of the landing gear above the ground, in metres. */
   altitude: number
   horizontalSpeed: number
-  verticalSpeed: number
-  position: { x: number; y: number; z: number }
-  /** The virtual drone's orientation, in degrees. */
-  attitude: { roll: number; pitch: number; yaw: number }
-  /** Each virtual motor's output from 0 to 1, in the order of PROPELLERS. */
-  motorOutputs: number[]
   /** True while the drone is held at the edge of the flight area. */
   isAtBoundary: boolean
   cameraMode: CameraMode
   /** Why a command was refused or what it did, if there is something to say. */
   message: string | null
-  /** Why the selected input device can't be used right now, or null if it can. */
-  inputFault: string | null
 }

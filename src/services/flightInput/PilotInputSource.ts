@@ -1,8 +1,18 @@
-import { KEYBOARD_THROTTLE_FULL_RANGE_SECONDS, type FlightKeyMap } from '../../config/flight'
+import { THROTTLE_FULL_RANGE_SECONDS, type FlightKeyMap } from '../../config/flight'
 import type { FlightCommand, FlightControls } from '../../types/flight'
 import type { FlightInputEvent, FlightInputSource } from './FlightInputSource'
 
 type KeyAction = keyof FlightKeyMap
+
+/** The on-screen sticks, from -1 to +1. Throttle here is how fast to change it, not its level. */
+export interface StickAxes {
+  throttleRate: number
+  roll: number
+  pitch: number
+  yaw: number
+}
+
+const CENTRED: StickAxes = { throttleRate: 0, roll: 0, pitch: 0, yaw: 0 }
 
 const COMMAND_FOR_ACTION: Partial<Record<KeyAction, FlightCommand>> = {
   arm: 'arm',
@@ -10,6 +20,8 @@ const COMMAND_FOR_ACTION: Partial<Record<KeyAction, FlightCommand>> = {
   reset: 'reset',
   toggleCamera: 'toggle-camera',
 }
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
 
 /** Typing in a form must not fly the drone: "r" in a text box would otherwise reset it. */
 function isTypingTarget(target: EventTarget | null) {
@@ -19,15 +31,19 @@ function isTypingTarget(target: EventTarget | null) {
   )
 }
 
-export class KeyboardInputSource implements FlightInputSource {
-  readonly name = 'Keyboard'
+/**
+ * The on-screen sticks and the keyboard, as one source with one throttle. Letting go
+ * of either leaves the throttle where it is, so a pilot can hold a hover hands-free.
+ */
+export class PilotInputSource implements FlightInputSource {
+  readonly name = 'Pilot'
 
   private readonly actionForCode = new Map<string, KeyAction>()
   private readonly listeners = new Set<(event: FlightInputEvent) => void>()
   private readonly heldCodes = new Set<string>()
   private readonly heldActions = new Set<KeyAction>()
+  private sticks = CENTRED
   private throttle = 0
-  private flightKeysEnabled = true
 
   constructor(keyMap: FlightKeyMap) {
     for (const [action, codes] of Object.entries(keyMap)) {
@@ -47,23 +63,31 @@ export class KeyboardInputSource implements FlightInputSource {
     window.removeEventListener('keyup', this.handleKeyUp)
     window.removeEventListener('blur', this.releaseAllKeys)
     this.releaseAllKeys()
+    this.sticks = CENTRED
     this.throttle = 0
   }
 
   read(deltaSeconds: number): FlightControls {
-    const axis = (positive: KeyAction, negative: KeyAction) =>
-      Number(this.heldActions.has(positive)) - Number(this.heldActions.has(negative))
+    const axis = (positive: KeyAction, negative: KeyAction, stick: number) =>
+      clamp(Number(this.heldActions.has(positive)) - Number(this.heldActions.has(negative)) + stick, -1, 1)
 
     this.throttle +=
-      (axis('throttleUp', 'throttleDown') * deltaSeconds) / KEYBOARD_THROTTLE_FULL_RANGE_SECONDS
-    this.throttle = Math.min(Math.max(this.throttle, 0), 1)
+      (axis('throttleUp', 'throttleDown', this.sticks.throttleRate) * deltaSeconds) /
+      THROTTLE_FULL_RANGE_SECONDS
+    this.throttle = clamp(this.throttle, 0, 1)
 
     return {
       throttle: this.throttle,
-      roll: axis('rollRight', 'rollLeft'),
-      pitch: axis('pitchForward', 'pitchBackward'),
-      yaw: axis('yawRight', 'yawLeft'),
+      roll: axis('rollRight', 'rollLeft', this.sticks.roll),
+      pitch: axis('pitchForward', 'pitchBackward', this.sticks.pitch),
+      yaw: axis('yawRight', 'yawLeft', this.sticks.yaw),
     }
+  }
+
+  /** For the on-screen sticks. Only the axes that a stick controls need to be given. */
+  setSticks(change: Partial<StickAxes>) {
+    this.sticks = { ...this.sticks, ...change }
+    this.emit({ type: 'activity' })
   }
 
   resetThrottle() {
@@ -71,19 +95,7 @@ export class KeyboardInputSource implements FlightInputSource {
   }
 
   isActive() {
-    return this.heldActions.size > 0
-  }
-
-  /** The keyboard itself can't fail. */
-  getFault() {
-    return null
-  }
-
-  /** With these off, only the command keys still do anything, and the rest behave as normal. */
-  setFlightKeysEnabled(isEnabled: boolean) {
-    this.flightKeysEnabled = isEnabled
-    this.releaseAllKeys()
-    this.throttle = 0
+    return this.heldActions.size > 0 || Object.values(this.sticks).some((value) => value !== 0)
   }
 
   subscribe(listener: (event: FlightInputEvent) => void) {
@@ -105,13 +117,11 @@ export class KeyboardInputSource implements FlightInputSource {
     const action = this.actionForCode.get(event.code)
     if (!action) return
 
-    const command = COMMAND_FOR_ACTION[action]
-    if (!command && !this.flightKeysEnabled) return
-
     // Stops the arrows and Space scrolling, and Space or Enter pressing a focused button.
     event.preventDefault()
     if (event.repeat) return
 
+    const command = COMMAND_FOR_ACTION[action]
     if (command) {
       this.emit({ type: 'command', command })
       return

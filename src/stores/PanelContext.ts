@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-export type PanelId = 'home' | 'natural' | 'artificial' | 'telemetry' | 'settings' | 'help'
+export type PanelId = 'settings' | 'help'
 
 export interface PanelContextValue {
   /** Only one panel is ever open. */
