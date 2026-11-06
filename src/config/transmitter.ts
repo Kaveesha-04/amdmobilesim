@@ -18,13 +18,13 @@ export const TRANSMITTER_CONFIG = {
 
 /**
  * The team's shared transmitter, measured on 2026-11-05 and in raw transmitter units.
- * Every laptop uses these same values. The stick directions (invert) are not yet
- * confirmed by a real flight. Positive roll is right, positive pitch is forward and
- * positive yaw is nose right.
+ * Every laptop uses these same values. Once normalized, positive roll is right,
+ * positive pitch is forward and positive yaw is nose right. The ESP32 sends roll and
+ * pitch with the opposite signs, so those two are inverted here and nowhere else.
  */
 export const TRANSMITTER_CALIBRATION: TransmitterCalibration = {
   throttle: { min: 1000, max: 2000, deadband: 2, invert: false },
-  roll: { min: -500, max: 500, center: 0, deadband: 5, invert: false },
-  pitch: { min: -500, max: 500, center: 0, deadband: 5, invert: false },
+  roll: { min: -500, max: 500, center: 0, deadband: 5, invert: true },
+  pitch: { min: -500, max: 500, center: 0, deadband: 5, invert: true },
   yaw: { min: -500, max: 500, center: 0, deadband: 5, invert: false },
 }
