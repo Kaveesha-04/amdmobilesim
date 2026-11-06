@@ -239,7 +239,7 @@ These values live in `src/config/flight.ts`.
 
 - **The physics is a simplified teaching model.** It is chosen to feel believable, and isn't measured from the real drone, so it can't predict how the real drone will fly.
 - **Natural Mode has no real data source yet.** It only runs on simulated data, and only in development.
-- **The transmitter's stick directions aren't confirmed yet.** Its ranges and sending rate have been measured, but `invert` hasn't been checked in a real flight.
+- **The transmitter's throttle and yaw directions aren't confirmed yet.** Its ranges and sending rate have been measured, and roll and pitch are inverted because they were seen moving the wrong way, but no channel's direction has been signed off in a real flight.
 - **Motor numbering and RPM are the simulator's own,** and say nothing about the real drone's wiring or motors.
 
 ## Troubleshooting
