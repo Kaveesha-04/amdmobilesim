@@ -39,8 +39,9 @@ export function HelpPanel() {
         <section className="space-y-2" data-help="natural">
           <PanelHeading>Natural Mode</PanelHeading>
           <PanelText>
-            The model follows the real drone's orientation and stays in place. Drag the scene to
-            look around, and scroll to zoom. Choose Artificial Mode to fly a virtual drone.
+            This mode is under development and isn't connected to a real drone yet. The model stays
+            in place. Drag the scene to look around, and scroll to zoom. Choose Artificial Mode to
+            fly a virtual drone.
           </PanelText>
         </section>
       )}
