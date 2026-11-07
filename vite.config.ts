@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/aeronexus_sim/',
+  base: '/amdmobilesim/',
   plugins: [react(), tailwindcss()],
 })
